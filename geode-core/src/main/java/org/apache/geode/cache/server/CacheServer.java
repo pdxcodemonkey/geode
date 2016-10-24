@@ -14,16 +14,14 @@
  */
 package org.apache.geode.cache.server;
 
-import java.io.IOException;
-import java.util.Set;
-
 import org.apache.geode.cache.ClientSession;
 import org.apache.geode.cache.InterestRegistrationListener;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
-import org.apache.geode.cache.server.ServerLoadProbe;
 import org.apache.geode.cache.server.internal.ConnectionCountProbe;
 import org.apache.geode.distributed.DistributedMember;
+
+import java.io.IOException;
+import java.util.Set;
 
 /**
  * A cache server that serves the contents of a <code>Cache</code> to client VMs in another
@@ -136,11 +134,6 @@ public interface CacheServer {
    * The default setting for outgoing tcp/ip connections. By default the product enables tcpNoDelay.
    */
   public static final boolean DEFAULT_TCP_NO_DELAY = true;
-
-
-  public static final int HTTP_DEFAULT_PORT = 8080;
-  public static final String HTTP_SERVICE_DEFAULT_BIND_ADDRESS = "";
-
 
   /**
    * Returns the port on which this cache server listens for clients.
