@@ -1,18 +1,16 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.apache.geode.security;
 
@@ -34,6 +32,7 @@ import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.DistributedTest;
+import org.apache.geode.test.junit.categories.FlakyTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -58,13 +57,14 @@ public class IntegratedSecurityCacheLifecycleDistributedTest extends JUnit4Cache
     int locatorPort = ports[0];
     int managerPort = ports[1];
 
-    locators =  NetworkUtils.getServerHostName(host) + "[" + locatorPort + "]";
+    locators = NetworkUtils.getServerHostName(host) + "[" + locatorPort + "]";
 
     locator.invoke(() -> {
       DistributedTestUtils.deleteLocatorStateFile(locatorPort);
 
       final Properties properties = new Properties();
-      properties.setProperty(SampleSecurityManager.SECURITY_JSON, "org/apache/geode/management/internal/security/clientServer.json");
+      properties.setProperty(SampleSecurityManager.SECURITY_JSON,
+          "org/apache/geode/management/internal/security/clientServer.json");
       properties.setProperty(LOCATORS, locators);
       properties.setProperty(MCAST_PORT, "0");
       properties.setProperty(SECURITY_MANAGER, SpySecurityManager.class.getName());
@@ -78,6 +78,7 @@ public class IntegratedSecurityCacheLifecycleDistributedTest extends JUnit4Cache
     });
   }
 
+  @Category(FlakyTest.class) // GEODE-1662
   @Test
   public void initAndCloseTest() throws Exception {
     connect();
@@ -101,7 +102,8 @@ public class IntegratedSecurityCacheLifecycleDistributedTest extends JUnit4Cache
 
   private void connect() throws IOException {
     final Properties properties = new Properties();
-    properties.setProperty(SampleSecurityManager.SECURITY_JSON, "org/apache/geode/management/internal/security/clientServer.json");
+    properties.setProperty(SampleSecurityManager.SECURITY_JSON,
+        "org/apache/geode/management/internal/security/clientServer.json");
     properties.setProperty(LOCATORS, locators);
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(SECURITY_MANAGER, SpySecurityManager.class.getName());
