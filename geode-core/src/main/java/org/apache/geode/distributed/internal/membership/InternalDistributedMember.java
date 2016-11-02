@@ -988,7 +988,8 @@ public class InternalDistributedMember implements DistributedMember, Externaliza
     int port = in.readInt();
 
     this.hostName = DataSerializer.readString(in);
-    this.hostName = SocketCreator.resolve_dns? SocketCreator.getCanonicalHostName(inetAddr, hostName) : inetAddr.getHostAddress();
+    this.hostName = SocketCreator.resolve_dns
+        ? SocketCreator.getCanonicalHostName(inetAddr, hostName) : inetAddr.getHostAddress();
 
     int flags = in.readUnsignedByte();
     boolean sbEnabled = (flags & NPD_ENABLED_BIT) != 0;

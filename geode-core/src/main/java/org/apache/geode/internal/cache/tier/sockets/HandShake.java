@@ -1254,7 +1254,7 @@ public class HandShake implements ClientHandShake {
 
       // Read the server member
       member = readServerMember(dis);
-      serverQStatus = new ServerQueueStatus(epType, qSize,member);
+      serverQStatus = new ServerQueueStatus(epType, qSize, member);
 
       // Read the message (if any)
       readMessage(dis, dos, acceptanceCode, member);
@@ -1378,9 +1378,8 @@ public class HandShake implements ClientHandShake {
       dis = new VersionedDataInputStream(dis, v);
     }
     try {
-      return (DistributedMember)DataSerializer.readObject(dis);
-    }
-    catch (EOFException e) {
+      return (DistributedMember) DataSerializer.readObject(dis);
+    } catch (EOFException e) {
       throw e;
     } catch (Exception e) {
       throw new InternalGemFireException(
