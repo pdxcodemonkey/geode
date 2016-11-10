@@ -98,7 +98,7 @@ public class ConnectToLocatorSSLDUnitTest {
 
   @Test
   public void testConnectToLocatorWithSSLJMX() throws Exception {
-    securityProps.setProperty(SSL_ENABLED_COMPONENTS, SecurableCommunicationChannels.LOCATOR);
+    securityProps.setProperty(SSL_ENABLED_COMPONENTS, SecurableCommunicationChannels.JMX);
     securityProps.setProperty(SSL_KEYSTORE, jks.getCanonicalPath());
     securityProps.setProperty(SSL_KEYSTORE_PASSWORD, "password");
     securityProps.setProperty(SSL_KEYSTORE_TYPE, "JKS");
