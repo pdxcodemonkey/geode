@@ -46,6 +46,7 @@ import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.junit.categories.DistributedTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.apache.geode.test.junit.categories.FlakyTest;
 
 import java.io.Serializable;
 import java.util.ArrayList;
