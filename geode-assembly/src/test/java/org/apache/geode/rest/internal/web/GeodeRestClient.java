@@ -81,6 +81,7 @@ public class GeodeRestClient {
 
   /**
    * Retrieve the status code of the HttpResponse
+   * 
    * @param response The HttpResponse message received from the server
    * @return a numeric value
    */
@@ -151,7 +152,7 @@ public class GeodeRestClient {
 
     if (useHttps) {
       SSLContext ctx = SSLContext.getInstance("TLS");
-      ctx.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()},
+      ctx.init(new KeyManager[0], new TrustManager[] {new DefaultTrustManager()},
           new SecureRandom());
       clientBuilder.setSSLContext(ctx);
       clientBuilder.setSSLHostnameVerifier(new NoopHostnameVerifier());
@@ -164,13 +165,11 @@ public class GeodeRestClient {
 
     @Override
     public void checkClientTrusted(X509Certificate[] arg0, String arg1)
-        throws CertificateException {
-    }
+        throws CertificateException {}
 
     @Override
     public void checkServerTrusted(X509Certificate[] arg0, String arg1)
-        throws CertificateException {
-    }
+        throws CertificateException {}
 
     @Override
     public X509Certificate[] getAcceptedIssuers() {
