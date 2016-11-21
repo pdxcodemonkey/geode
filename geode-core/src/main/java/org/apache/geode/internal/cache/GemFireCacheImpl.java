@@ -2192,7 +2192,6 @@ public class GemFireCacheImpl
           } catch (CancelException ce) {
           }
         }
-        ParallelGatewaySenderQueue.cleanUpStatics(null);
 
         destroyGatewaySenderLockService();
 
