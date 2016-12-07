@@ -109,7 +109,7 @@ public class GatewayReceiverAutoConnectionSourceDUnitTest extends LocatorTestBas
         PoolImpl pool = (PoolImpl) PoolManager.find(region);
         AutoConnectionSourceImpl connectionSource =
             (AutoConnectionSourceImpl) pool.getConnectionSource();
-        List<ServerLocation> allServers = connectionSource.getAllServers();
+        List<ServerLocation> allServers = connectionSource.findAllServers();
         if (oneServerExpected) {
           // One server is expected. Assert one was returned, and its port matches the input
           // serverPort.
