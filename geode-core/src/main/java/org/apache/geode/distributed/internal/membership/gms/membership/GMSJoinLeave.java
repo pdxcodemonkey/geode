@@ -675,10 +675,8 @@ public class GMSJoinLeave implements JoinLeave, MessageHandler {
     logger.debug("Recording the request to be processed in the next membership view");
     synchronized (viewRequests) {
       viewRequests.add(request);
-      if (viewCreator != null) {
-        boolean joinResponseSent = viewCreator.informToPendingJoinRequests();
-
-        if (!joinResponseSent && request instanceof JoinRequestMessage) {
+      if (viewCreator != null && services.getMessenger().getClusterSecretKey() != null) {
+        if (request instanceof JoinRequestMessage) {
           JoinRequestMessage jreq = (JoinRequestMessage) request;
           // this will inform about cluster-secret key, as we have authenticated at this point
           JoinResponseMessage response = new JoinResponseMessage(jreq.getSender(),
@@ -2139,10 +2137,19 @@ public class GMSJoinLeave implements JoinLeave, MessageHandler {
       }
       ArrayList<DistributionMessage> requests = new ArrayList<>();
       synchronized (viewRequests) {
-        if (viewRequests.size() > 0) {
-          requests.addAll(viewRequests);
-        } else {
-          return joinResponseSent;
+        if (viewRequests.isEmpty()) {
+          return false;
+        }
+        for (Iterator<DistributionMessage> iterator = viewRequests.iterator(); iterator
+            .hasNext();) {
+          DistributionMessage msg = iterator.next();
+          switch (msg.getDSFID()) {
+            case JOIN_REQUEST:
+              requests.add((JoinRequestMessage) msg);
+              break;
+            default:
+              break;
+          }
         }
         viewRequests.clear();
       }
