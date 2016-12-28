@@ -236,13 +236,11 @@ public class PartitionedRegionQueryDUnitTest extends JUnit4CacheTestCase {
     });
   }
 
-  @Test
   public void testFailureToCreateIndexOnLocalNodeThrowsException() {
     VM vmToFailCreationOn = Host.getHost(0).getVM(0);
     failToCreateIndexOnNode(vmToFailCreationOn);
   }
 
-  @Test
   public void testFailureToCreateIndexOnRemoteNodeThrowsException() {
     VM vmToFailCreationOn = Host.getHost(0).getVM(1);
     failToCreateIndexOnNode(vmToFailCreationOn);
