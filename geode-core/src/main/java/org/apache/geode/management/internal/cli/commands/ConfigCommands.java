@@ -65,6 +65,19 @@ import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+
 /****
  * @since GemFire 7.0
  *
@@ -508,7 +521,7 @@ public class ConfigCommands implements CommandMarker {
     }
 
     @Override
-    public Result postExecution(GfshParseResult parseResult, Result commandResult) {
+    public Result postExecution(GfshParseResult parseResult, Result commandResult, Path tempFile) {
       if (commandResult.hasIncomingFiles()) {
         try {
           commandResult.saveIncomingFiles(saveDirString);

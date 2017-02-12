@@ -14,14 +14,6 @@
  */
 package org.apache.geode.management.internal.cli.commands;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -44,10 +36,18 @@ import org.apache.geode.management.internal.cli.result.TabularResultData;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
-
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /****
  * Commands for the shared configuration
@@ -229,7 +229,7 @@ public class ExportImportSharedConfigurationCommands extends AbstractCommandsSup
     }
 
     @Override
-    public Result postExecution(GfshParseResult parseResult, Result commandResult) {
+    public Result postExecution(GfshParseResult parseResult, Result commandResult, Path tempFile) {
       if (commandResult.hasIncomingFiles()) {
         try {
           Map<String, String> paramValueMap = parseResult.getParamValueStrings();
@@ -300,11 +300,6 @@ public class ExportImportSharedConfigurationCommands extends AbstractCommandsSup
       }
 
       return fileResult;
-    }
-
-    @Override
-    public Result postExecution(GfshParseResult parseResult, Result commandResult) {
-      return null;
     }
   }
 

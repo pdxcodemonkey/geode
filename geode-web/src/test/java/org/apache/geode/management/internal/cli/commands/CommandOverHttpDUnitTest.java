@@ -32,13 +32,9 @@ import org.apache.geode.test.junit.runner.SuiteRunner;
     GetCommandOnRegionWithCacheLoaderDuringCacheMissDUnitTest.class, IndexCommandsDUnitTest.class,
     ListAndDescribeDiskStoreCommandsDUnitTest.class, ListIndexCommandDUnitTest.class,
     MemberCommandsDUnitTest.class, MiscellaneousCommandsDUnitTest.class,
-    MiscellaneousCommandsExportLogsPart1DUnitTest.class,
-    MiscellaneousCommandsExportLogsPart2DUnitTest.class,
-    MiscellaneousCommandsExportLogsPart3DUnitTest.class,
-    MiscellaneousCommandsExportLogsPart4DUnitTest.class, QueueCommandsDUnitTest.class,
-    SharedConfigurationCommandsDUnitTest.class, ShellCommandsDUnitTest.class,
-    ShowDeadlockDUnitTest.class, ShowMetricsDUnitTest.class, ShowStackTraceDUnitTest.class,
-    UserCommandsDUnitTest.class})
+    QueueCommandsDUnitTest.class, ShellCommandsDUnitTest.class, ShowDeadlockDUnitTest.class,
+    ShowMetricsDUnitTest.class, ShowStackTraceDUnitTest.class, UserCommandsDUnitTest.class,
+    SharedConfigurationCommandsDUnitTest.class})
 public class CommandOverHttpDUnitTest {
   @ClassRule
   public static ProvideSystemProperty provideSystemProperty =
