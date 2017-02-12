@@ -52,6 +52,7 @@ dependencies {
   testCompile project(':geode-junit')
   testRuntime project(':geode-common')
   testRuntime project(':geode-core')
+  testRuntime 'com.google.guava:guava:' + project.'guava.version'
   testCompile files(project(':geode-core').sourceSets.test.output)
 
   testRuntime files(war.destinationDir)

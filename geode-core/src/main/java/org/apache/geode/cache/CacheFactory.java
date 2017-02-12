@@ -15,8 +15,6 @@
 
 package org.apache.geode.cache;
 
-import java.util.Properties;
-
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
@@ -25,11 +23,14 @@ import org.apache.geode.internal.cache.CacheConfig;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.i18n.LocalizedStrings;
-import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxSerializer;
+import org.apache.geode.security.AuthenticationFailedException;
+import org.apache.geode.security.AuthenticationRequiredException;
 import org.apache.geode.security.PostProcessor;
 import org.apache.geode.security.SecurityManager;
+
+import java.util.Properties;
 
 
 /**
@@ -335,8 +336,6 @@ public class CacheFactory {
    * object provided this way is expected to be initialized already. We are not calling the init
    * method on this object
    *
-   * @param securityManager
-   * @return
    */
   public CacheFactory setSecurityManager(SecurityManager securityManager) {
     this.cacheConfig.setSecurityManager(securityManager);
@@ -350,9 +349,6 @@ public class CacheFactory {
    * This is provided mostly for container to inject an already initialized post processor. An
    * object provided this way is expected to be initialized already. We are not calling the init
    * method on this object
-   * 
-   * @param postProcessor
-   * @return
    */
   public CacheFactory setPostProcessor(PostProcessor postProcessor) {
     this.cacheConfig.setPostProcessor(postProcessor);

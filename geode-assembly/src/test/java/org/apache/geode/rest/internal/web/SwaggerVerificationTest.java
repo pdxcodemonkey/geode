@@ -29,6 +29,7 @@ import org.apache.geode.security.SimpleTestSecurityManager;
 import org.apache.geode.test.junit.categories.IntegrationTest;
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,7 +37,6 @@ import org.junit.experimental.categories.Category;
 import java.util.Properties;
 
 @Category(IntegrationTest.class)
-
 public class SwaggerVerificationTest {
 
   private static int restPort = AvailablePortHelper.getRandomAvailableTCPPort();
@@ -50,11 +50,17 @@ public class SwaggerVerificationTest {
   };
 
   @ClassRule
-  public static ServerStarterRule serverStarter = new ServerStarterRule(properties);
-  private final GeodeRestClient restClient = new GeodeRestClient("localhost", restPort);
+  public static ServerStarterRule serverStarter = new ServerStarterRule();
+  private GeodeRestClient restClient;
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    serverStarter.startServer(properties);
+  }
 
   @Test
   public void isSwaggerRunning() throws Exception {
+    GeodeRestClient restClient = new GeodeRestClient("localhost", restPort);
     // Check the UI
     HttpResponse response = restClient.doGetRequest("/geode/swagger-ui.html");
     assertThat(GeodeRestClient.getCode(response), is(200));

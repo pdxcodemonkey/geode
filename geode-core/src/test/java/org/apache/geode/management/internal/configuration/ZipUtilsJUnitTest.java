@@ -14,20 +14,23 @@
  */
 package org.apache.geode.management.internal.configuration;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.geode.management.internal.configuration.utils.ZipUtils;
+import org.apache.geode.test.junit.categories.IntegrationTest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.management.internal.configuration.utils.ZipUtils;
-import org.apache.geode.test.junit.categories.IntegrationTest;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * JUnit Test for {@link ZipUtils}
@@ -75,7 +78,7 @@ public class ZipUtilsJUnitTest {
     assertFalse(zipFile.exists());
     assertFalse(zipFile.isFile());
 
-    ZipUtils.zip(sourceFolder.getCanonicalPath(), zipFile.getCanonicalPath());
+    ZipUtils.zipDirectory(sourceFolder.getCanonicalPath(), zipFile.getCanonicalPath());
     assertTrue(zipFile.exists());
     assertTrue(zipFile.isFile());
 
@@ -106,5 +109,20 @@ public class ZipUtilsJUnitTest {
 
     assertTrue(clusterText.equals(FileUtils.readFileToString(destinationClusterTextFile)));
     assertTrue(groupText.equals(FileUtils.readFileToString(destinationGroupTextFile)));
+  }
+
+  @Test
+  public void zipUtilsCanCreateParentDirsIfNecessary() throws IOException {
+    File newFolder = new File(zipFolder, "newFolder");
+    assertFalse(newFolder.exists());
+
+    File zipFile = new File(newFolder, "target.zip");
+    assertFalse(zipFile.exists());
+    assertFalse(zipFile.isFile());
+
+    ZipUtils.zipDirectory(sourceFolder.getCanonicalPath(), zipFile.getCanonicalPath());
+    assertTrue(newFolder.exists());
+    assertTrue(zipFile.exists());
+    assertTrue(zipFile.isFile());
   }
 }
