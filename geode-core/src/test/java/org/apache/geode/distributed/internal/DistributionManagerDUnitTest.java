@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.*;
 import static org.apache.geode.test.dunit.Assert.*;
 
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
-import org.awaitility.Awaitility;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -214,9 +213,9 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
       // return; // machine is too busy and we didn't get enough CPU to perform more assertions
       // }
 
-      Awaitility.await("waiting for member to be removed")
-          .atMost((timeout / 3) + gracePeriod, TimeUnit.MILLISECONDS)
-          .until(() -> !mgr.isSurpriseMember(mbr));
+      Thread.sleep((timeout / 3) + gracePeriod);
+
+      assertTrue("member was still a surprise member", !mgr.isSurpriseMember(mbr));
 
     } catch (UnknownHostException e) {
       fail("unable to resolve localhost - test needs some attention", e);
