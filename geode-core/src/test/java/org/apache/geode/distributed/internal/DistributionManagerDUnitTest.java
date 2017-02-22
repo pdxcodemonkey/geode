@@ -17,6 +17,9 @@ package org.apache.geode.distributed.internal;
 import static org.apache.geode.distributed.ConfigurationProperties.*;
 import static org.apache.geode.test.dunit.Assert.*;
 
+import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
+import org.awaitility.Awaitility;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -24,6 +27,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -69,6 +73,9 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
   private static final Logger logger = LogService.getLogger();
 
   public static DistributedSystem ds;
+
+  @Rule
+  public DistributedRestoreSystemProperties restoreSystemProperties = new DistributedRestoreSystemProperties();
 
   /**
    * Clears the exceptionInThread flag in the given distribution manager.
@@ -145,18 +152,14 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
     InternalDistributedMember idm = mgr.getLocalMember();
     // TODO GMS needs to have a system property allowing the bind-port to be set
     System.setProperty(DistributionConfig.GEMFIRE_PREFIX + "jg-bind-port", "" + idm.getPort());
-    try {
-      sys.disconnect();
-      sys = getSystem();
-      mgr = MembershipManagerHelper.getMembershipManager(sys);
-      sys.disconnect();
-      InternalDistributedMember idm2 = mgr.getLocalMember();
-      org.apache.geode.test.dunit.LogWriterUtils.getLogWriter()
-          .info("original ID=" + idm + " and after connecting=" + idm2);
-      assertTrue("should not have used a different udp port", idm.getPort() == idm2.getPort());
-    } finally {
-      System.getProperties().remove(DistributionConfig.GEMFIRE_PREFIX + "jg-bind-port");
-    }
+    sys.disconnect();
+    sys = getSystem();
+    mgr = MembershipManagerHelper.getMembershipManager(sys);
+    sys.disconnect();
+    InternalDistributedMember idm2 = mgr.getLocalMember();
+    org.apache.geode.test.dunit.LogWriterUtils.getLogWriter()
+        .info("original ID=" + idm + " and after connecting=" + idm2);
+    assertTrue("should not have used a different udp port", idm.getPort() == idm2.getPort());
   }
 
   /**
@@ -166,11 +169,12 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
    * should be gone and force more view processing to have it scrubbed from the set.
    **/
   @Test
-  public void testSurpriseMemberHandling() {
-    VM vm0 = Host.getHost(0).getVM(0);
+  public void testSurpriseMemberHandling() throws Exception {
 
+    System.setProperty(DistributionConfig.GEMFIRE_PREFIX + "surprise-member-timeout", "3000");
     InternalDistributedSystem sys = getSystem();
     MembershipManager mgr = MembershipManagerHelper.getMembershipManager(sys);
+    assertTrue(((GMSMembershipManager) mgr).isCleanupTimerStarted());
 
     try {
       InternalDistributedMember mbr =
@@ -180,7 +184,8 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
 
       // if the view number isn't being recorded correctly the test will pass but the
       // functionality is broken
-      Assert.assertTrue("expected view ID to be greater than zero", mgr.getView().getViewId() > 0);
+      Assert.assertTrue("expected view ID to be greater than zero",
+          mgr.getView().getViewId() > 0);
 
       int oldViewId = mbr.getVmViewId();
       mbr.setVmViewId((int) mgr.getView().getViewId() - 1);
@@ -188,19 +193,13 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
           .info("current membership view is " + mgr.getView());
       org.apache.geode.test.dunit.LogWriterUtils.getLogWriter()
           .info("created ID " + mbr + " with view ID " + mbr.getVmViewId());
-      sys.getLogWriter()
-          .info("<ExpectedException action=add>attempt to add old member</ExpectedException>");
-      sys.getLogWriter()
-          .info("<ExpectedException action=add>Removing shunned GemFire node</ExpectedException>");
-      try {
-        boolean accepted = mgr.addSurpriseMember(mbr);
-        Assert.assertTrue("member with old ID was not rejected (bug #44566)", !accepted);
-      } finally {
-        sys.getLogWriter()
-            .info("<ExpectedException action=remove>attempt to add old member</ExpectedException>");
-        sys.getLogWriter().info(
-            "<ExpectedException action=remove>Removing shunned GemFire node</ExpectedException>");
-      }
+
+      IgnoredException.addIgnoredException("attempt to add old member");
+      IgnoredException.addIgnoredException("Removing shunned GemFire node");
+
+      boolean accepted = mgr.addSurpriseMember(mbr);
+      Assert.assertTrue("member with old ID was not rejected (bug #44566)", !accepted);
+
       mbr.setVmViewId(oldViewId);
 
       // now forcibly add it as a surprise member and show that it is reaped
@@ -211,28 +210,15 @@ public class DistributionManagerDUnitTest extends JUnit4DistributedTestCase {
       MembershipManagerHelper.addSurpriseMember(sys, mbr, birthTime);
       assertTrue("Member was not a surprise member", mgr.isSurpriseMember(mbr));
 
-      // force a real view change
-      SerializableRunnable connectDisconnect = new SerializableRunnable() {
-        public void run() {
-          getSystem().disconnect();
-        }
-      };
-      vm0.invoke(connectDisconnect);
-
       if (birthTime < (System.currentTimeMillis() - timeout)) {
         return; // machine is too busy and we didn't get enough CPU to perform more assertions
       }
       assertTrue("Member was incorrectly removed from surprise member set",
           mgr.isSurpriseMember(mbr));
 
-      try {
-        Thread.sleep(gracePeriod);
-      } catch (InterruptedException e) {
-        fail("test was interrupted", e);
-      }
-
-      vm0.invoke(connectDisconnect);
-      assertTrue("Member was not removed from surprise member set", !mgr.isSurpriseMember(mbr));
+      Awaitility.await("waiting for member to be removed")
+          .atMost((timeout / 3) + gracePeriod, TimeUnit.MILLISECONDS)
+          .until(() -> !mgr.isSurpriseMember(mbr));
 
     } catch (UnknownHostException e) {
       fail("unable to resolve localhost - test needs some attention", e);
