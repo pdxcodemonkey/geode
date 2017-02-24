@@ -14,37 +14,19 @@
  */
 package org.apache.geode.distributed;
 
-import static org.apache.geode.distributed.ConfigurationProperties.DISABLE_AUTO_RECONNECT;
-import static org.apache.geode.distributed.ConfigurationProperties.ENABLE_CLUSTER_CONFIGURATION;
-import static org.apache.geode.distributed.ConfigurationProperties.ENABLE_NETWORK_PARTITION_DETECTION;
-import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
-import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
-import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
-import static org.apache.geode.distributed.ConfigurationProperties.MCAST_TTL;
-import static org.apache.geode.distributed.ConfigurationProperties.MEMBER_TIMEOUT;
-import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_PEER_AUTHENTICATOR;
-import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_PEER_AUTH_INIT;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_CIPHERS;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_ENABLED_COMPONENTS;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_KEYSTORE;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_KEYSTORE_PASSWORD;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_KEYSTORE_TYPE;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_LOCATOR_ALIAS;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_PROTOCOLS;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_REQUIRE_AUTHENTICATION;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_TRUSTSTORE;
-import static org.apache.geode.distributed.ConfigurationProperties.SSL_TRUSTSTORE_PASSWORD;
-import static org.apache.geode.distributed.ConfigurationProperties.START_LOCATOR;
-import static org.apache.geode.distributed.ConfigurationProperties.USE_CLUSTER_CONFIGURATION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.apache.geode.distributed.ConfigurationProperties.*;
+import static org.junit.Assert.*;
 
-import org.apache.geode.distributed.internal.membership.gms.Services;
-import org.apache.geode.test.dunit.AsyncInvocation;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
 import org.apache.geode.ForcedDisconnectException;
 import org.apache.geode.GemFireConfigException;
 import org.apache.geode.LogWriter;
@@ -452,29 +434,9 @@ public class LocatorDUnitTest extends JUnit4DistributedTestCase {
     properties.put(SSL_ENABLED_COMPONENTS, SecurableCommunicationChannel.LOCATOR.getConstant());
 
 
-  private void startVerifyAndStopLocator(VM loc1, VM loc2, int port1, int port2,
-      Properties properties) throws Exception {
     try {
-      getBlackboard().initBlackboard();
-      AsyncInvocation<Boolean> async1 = loc1.invokeAsync("startLocator1", () -> {
-        getBlackboard().signalGate("locator1");
-        getBlackboard().waitForGate("go", 10, TimeUnit.SECONDS);
-        return startLocatorWithPortAndProperties(port1, properties);
-      });
-
-      AsyncInvocation<Boolean> async2 = loc2.invokeAsync("startLocator2", () -> {
-        getBlackboard().signalGate("locator2");
-        getBlackboard().waitForGate("go", 10, TimeUnit.SECONDS);
-        return startLocatorWithPortAndProperties(port2, properties);
-      });
-
-      getBlackboard().waitForGate("locator1", 10, TimeUnit.SECONDS);
-      getBlackboard().waitForGate("locator2", 10, TimeUnit.SECONDS);
-      getBlackboard().signalGate("go");
-
-      async1.await();
-      async2.await();
-
+      loc2.invoke("startLocator2", () -> startLocatorWithPortAndProperties(port2, properties));
+      loc1.invoke("startLocator1", () -> startLocatorWithPortAndProperties(port1, properties));
     } finally {
       try {
         // verify that they found each other

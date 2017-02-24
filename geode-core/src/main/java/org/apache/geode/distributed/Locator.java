@@ -394,10 +394,7 @@ public abstract class Locator {
       }
     }
     StringBuilder locatorString = new StringBuilder(String.valueOf(ba));
-    Integer port = getPort();
-    if (port != null && port.intValue() > 0) {
-      locatorString.append('[').append(this.getPort()).append(']');
-    }
+    locatorString.append('[').append(this.getPort()).append(']');
     return locatorString.toString();
   }
 
