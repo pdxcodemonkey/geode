@@ -279,12 +279,12 @@ public class CliUtil {
   }
 
   public static Set<DistributedMember> findAllMatchingMembers(final String groups,
-                                                              final String members) throws CommandResultException {
+      final String members) throws CommandResultException {
     return findMembersOrThrow(groups, members);
   }
 
   public static Set<DistributedMember> findAllMatchingMembers(final String[] groups,
-                                                              final String[] members) throws CommandResultException {
+      final String[] members) throws CommandResultException {
     return findMembersOrThrow(groups, members);
   }
 
