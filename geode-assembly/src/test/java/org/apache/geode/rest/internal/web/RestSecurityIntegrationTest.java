@@ -58,12 +58,11 @@ public class RestSecurityIntegrationTest {
   };
 
   @ClassRule
-  public static ServerStarterRule serverStarter = new ServerStarterRule();
+  public static ServerStarterRule serverStarter = new ServerStarterRule(properties);
   private final GeodeRestClient restClient = new GeodeRestClient("localhost", restPort);
 
   @BeforeClass
   public static void before() throws Exception {
-    serverStarter.startServer(properties);
     serverStarter.cache.createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
   }
 

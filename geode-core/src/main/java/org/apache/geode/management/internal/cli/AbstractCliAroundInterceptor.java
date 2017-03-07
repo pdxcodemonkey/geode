@@ -14,9 +14,9 @@
  */
 package org.apache.geode.management.internal.cli;
 
-import org.apache.geode.management.internal.cli.shell.Gfsh;
-
 import java.io.IOException;
+
+import org.apache.geode.management.internal.cli.shell.Gfsh;
 
 /**
  * Semi-complete implementation of {@link CliAroundInterceptor} for convenience for implementors.

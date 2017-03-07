@@ -14,12 +14,11 @@
  */
 package org.apache.geode.management.internal.cli;
 
-import org.apache.geode.internal.lang.StringUtils;
-import org.apache.geode.management.cli.CliMetaData;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.geode.internal.lang.StringUtils;
 
 /**
  * The CommandRequest class encapsulates information pertaining to the command the user entered in
@@ -40,7 +39,6 @@ public class CommandRequest {
 
   private final Map<String, String> customParameters = new HashMap<String, String>();
   private final Map<String, String> env;
-  private final boolean downloadFile;
 
   private String customInput;
 
@@ -48,14 +46,12 @@ public class CommandRequest {
     this.env = env;
     this.fileData = null;
     this.parseResult = null;
-    downloadFile = false;
   }
 
   public CommandRequest(final Map<String, String> env, final byte[][] fileData) {
     this.env = env;
     this.fileData = fileData;
     this.parseResult = null;
-    downloadFile = false;
   }
 
   public CommandRequest(final GfshParseResult parseResult, final Map<String, String> env) {
@@ -69,9 +65,6 @@ public class CommandRequest {
     this.env = env;
     this.fileData = fileData;
     this.parseResult = parseResult;
-
-    CliMetaData metaData = parseResult.getMethod().getDeclaredAnnotation(CliMetaData.class);
-    this.downloadFile = (metaData != null && metaData.isFileDownloadOverHttp());
   }
 
   public String getName() {
@@ -93,10 +86,6 @@ public class CommandRequest {
 
   public String getCustomInput() {
     return customInput;
-  }
-
-  public boolean isDownloadFile() {
-    return downloadFile;
   }
 
   public void setCustomInput(final String input) {

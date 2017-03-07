@@ -23,7 +23,6 @@ import org.apache.geode.internal.AvailablePort;
 import org.apache.geode.test.dunit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.categories.IntegrationTest;
 import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -35,6 +34,7 @@ public class JavaRmiServerNameTest {
 
   private static final String JMX_HOST = "myHostname";
 
+  private static int jmxManagerPort = AvailablePort.getRandomAvailablePort(AvailablePort.SOCKET);
   static Properties properties = new Properties() {
     {
       setProperty(JMX_MANAGER_PORT,
@@ -44,14 +44,7 @@ public class JavaRmiServerNameTest {
   };
 
   @ClassRule
-  public static ServerStarterRule serverStarter = new ServerStarterRule();
-
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    serverStarter.startServer(properties);
-  }
-
-
+  public static ServerStarterRule serverStarter = new ServerStarterRule(properties);
 
   // https://issues.apache.org/jira/browse/GEODE-1548
   @Test

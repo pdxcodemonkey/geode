@@ -14,18 +14,12 @@
  */
 package org.apache.geode.internal.statistics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-import org.apache.geode.CancelCriterion;
-import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
-import org.apache.geode.internal.net.SocketCreator;
-import org.apache.geode.internal.stats50.VMStats50;
-import org.apache.geode.test.junit.categories.IntegrationTest;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,9 +29,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.List;
+import org.apache.geode.CancelCriterion;
+import org.apache.geode.Statistics;
+import org.apache.geode.StatisticsType;
+import org.apache.geode.internal.net.SocketCreator;
+import org.apache.geode.internal.stats50.VMStats50;
+import org.apache.geode.test.junit.categories.IntegrationTest;
 
 /**
  * Integration tests for {@link SimpleStatSampler}.

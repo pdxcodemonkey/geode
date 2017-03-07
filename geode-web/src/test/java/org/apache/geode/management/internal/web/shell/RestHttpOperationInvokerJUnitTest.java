@@ -14,12 +14,22 @@
  */
 package org.apache.geode.management.internal.web.shell;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 
 import org.apache.geode.internal.lang.StringUtils;
 import org.apache.geode.management.internal.cli.CommandRequest;
@@ -29,18 +39,6 @@ import org.apache.geode.management.internal.web.domain.LinkIndex;
 import org.apache.geode.management.internal.web.http.ClientHttpRequest;
 import org.apache.geode.management.internal.web.http.HttpMethod;
 import org.apache.geode.test.junit.categories.UnitTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.springframework.core.io.Resource;
-import org.springframework.web.client.ResourceAccessException;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * The RestHttpOperationInvokerJUnitTest class is a test suite of test cases testing the contract
@@ -317,13 +315,13 @@ public class RestHttpOperationInvokerJUnitTest extends AbstractWebTestCase {
 
       @Override
       @SuppressWarnings("unchecked")
-      protected <T> T send(final ClientHttpRequest request, final Class<T> responseType,
-          final Map<String, ?> uriVariables) {
-        return (T) expectedResult;
+      protected <T> ResponseEntity<T> send(final ClientHttpRequest request,
+          final Class<T> responseType, final Map<String, ?> uriVariables) {
+        return new ResponseEntity(expectedResult, HttpStatus.OK);
       }
     };
 
-    final Object actualResult = operationInvoker.processCommand(
+    final String actualResult = operationInvoker.processCommand(
         createCommandRequest("list-libraries", Collections.<String, String>emptyMap()));
 
     assertEquals(expectedResult, actualResult);
@@ -353,7 +351,7 @@ public class RestHttpOperationInvokerJUnitTest extends AbstractWebTestCase {
       protected void printWarning(final String message, final Object... args) {}
     };
 
-    final Object actualResult = operationInvoker.processCommand(
+    final String actualResult = operationInvoker.processCommand(
         createCommandRequest("get resource", Collections.<String, String>emptyMap()));
 
     assertEquals(expectedResult, actualResult);
@@ -373,8 +371,8 @@ public class RestHttpOperationInvokerJUnitTest extends AbstractWebTestCase {
       protected void printWarning(final String message, final Object... args) {}
 
       @Override
-      protected <T> T send(final ClientHttpRequest request, final Class<T> responseType,
-          final Map<String, ?> uriVariables) {
+      protected <T> ResponseEntity<T> send(final ClientHttpRequest request,
+          final Class<T> responseType, final Map<String, ?> uriVariables) {
         throw new ResourceAccessException("test");
       }
 
@@ -391,7 +389,7 @@ public class RestHttpOperationInvokerJUnitTest extends AbstractWebTestCase {
             + "Please try reconnecting or see the GemFire Manager's log file for further details.",
         operationInvoker.getBaseUrl(), "test");
 
-    final Object actualResult = operationInvoker.processCommand(
+    final String actualResult = operationInvoker.processCommand(
         createCommandRequest("list-libraries", Collections.<String, String>emptyMap()));
 
     assertFalse(operationInvoker.isConnected());

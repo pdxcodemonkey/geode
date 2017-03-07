@@ -27,6 +27,7 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.management.cli.Result;
+import org.apache.geode.management.internal.cli.HeadlessGfsh;
 import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.management.internal.cli.result.ErrorResultData;
 import org.apache.geode.management.internal.cli.result.ResultBuilder;
@@ -37,8 +38,8 @@ import org.apache.geode.test.dunit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.categories.IntegrationTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.shiro.authz.permission.WildcardPermission;
+import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -76,14 +77,18 @@ public class GfshCommandsSecurityTest {
   @Rule
   public GfshShellConnectionRule gfshConnection =
       new GfshShellConnectionRule(jmxPort, GfshShellConnectionRule.PortType.jmxManger);
-
-  @ClassRule
-  public static ServerStarterRule serverStarter = new ServerStarterRule();
+  private HeadlessGfsh gfsh = null;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    serverStarter.startServer(properties);
+    ServerStarterRule serverStarter = new ServerStarterRule(properties);
+    serverStarter.startServer();
     serverStarter.cache.createRegionFactory(RegionShortcut.REPLICATE).create("region1");
+  }
+
+  @Before
+  public void before() {
+    gfsh = gfshConnection.getGfsh();
   }
 
   @Test
@@ -156,8 +161,10 @@ public class GfshCommandsSecurityTest {
     List<TestCommand> allPermitted =
         TestCommand.getPermittedCommands(new WildcardPermission(permission, true));
     for (TestCommand permitted : allPermitted) {
-      System.out.println("Processing authorized command: " + permitted.getCommand());
-      CommandResult result = gfshConnection.executeCommand(permitted.getCommand());
+      LogService.getLogger().info("Processing authorized command: " + permitted.getCommand());
+
+      gfsh.executeCommand(permitted.getCommand());
+      CommandResult result = (CommandResult) gfsh.getResult();
       assertNotNull(result);
 
       if (result.getResultData() instanceof ErrorResultData) {
@@ -175,8 +182,10 @@ public class GfshCommandsSecurityTest {
       if (other.getPermission() == null)
         continue;
 
-      System.out.println("Processing unauthorized command: " + other.getCommand());
-      CommandResult result = (CommandResult) gfshConnection.executeCommand(other.getCommand());
+      LogService.getLogger().info("Processing unauthorized command: " + other.getCommand());
+      gfsh.executeCommand(other.getCommand());
+
+      CommandResult result = (CommandResult) gfsh.getResult();
       int errorCode = ((ErrorResultData) result.getResultData()).getErrorCode();
 
       // for some commands there are pre execution checks to check for user input error, will skip
@@ -198,12 +207,12 @@ public class GfshCommandsSecurityTest {
   @Test
   @ConnectionConfiguration(user = "data-user", password = "1234567")
   public void testGetPostProcess() throws Exception {
-    gfshConnection.executeCommand("put --region=region1 --key=key2 --value=value2");
-    gfshConnection.executeCommand("put --region=region1 --key=key2 --value=value2");
-    gfshConnection.executeCommand("put --region=region1 --key=key3 --value=value3");
+    gfsh.executeCommand("put --region=region1 --key=key2 --value=value2");
+    gfsh.executeCommand("put --region=region1 --key=key2 --value=value2");
+    gfsh.executeCommand("put --region=region1 --key=key3 --value=value3");
 
     // gfsh.executeCommand("get --region=region1 --key=key1");
-    gfshConnection.executeCommand("query --query=\"select * from /region1\"");
+    gfsh.executeCommand("query --query=\"select * from /region1\"");
   }
 
 }

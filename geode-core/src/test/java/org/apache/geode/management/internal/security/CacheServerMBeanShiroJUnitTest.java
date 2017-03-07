@@ -26,7 +26,6 @@ import org.apache.geode.test.dunit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.categories.IntegrationTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,12 +46,7 @@ public class CacheServerMBeanShiroJUnitTest {
   private CacheServerMXBean bean;
 
   @ClassRule
-  public static ServerStarterRule serverStarter = new ServerStarterRule();
-
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    serverStarter.startServer(properties);
-  }
+  public static ServerStarterRule serverStarter = new ServerStarterRule(properties);
 
   @Rule
   public MBeanServerConnectionRule connectionRule = new MBeanServerConnectionRule(jmxManagerPort);

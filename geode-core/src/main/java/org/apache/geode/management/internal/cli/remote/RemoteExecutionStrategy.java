@@ -124,7 +124,7 @@ public class RemoteExecutionStrategy {
         }
 
         if (interceptor != null) {
-          Result postExecResult = interceptor.postExecution(gfshParseResult, result, null);
+          Result postExecResult = interceptor.postExecution(gfshParseResult, result);
           if (postExecResult != null) {
             if (Status.ERROR.equals(postExecResult.getStatus())) {
               logWrapper.warning(postExecResult.toString(), null);

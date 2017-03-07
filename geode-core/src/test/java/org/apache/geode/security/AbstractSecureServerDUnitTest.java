@@ -35,7 +35,6 @@ import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 import org.apache.geode.test.dunit.rules.ServerStarterRule;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
-import org.junit.Rule;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,9 +50,6 @@ public abstract class AbstractSecureServerDUnitTest extends JUnit4DistributedTes
   protected VM client3 = null;
   protected int serverPort;
   protected boolean pdxPersistent = false;
-
-  @Rule
-  public transient ServerStarterRule serverStarter = new ServerStarterRule();
 
   // overwrite this in child classes
   public Properties getProperties() {
@@ -77,7 +73,8 @@ public abstract class AbstractSecureServerDUnitTest extends JUnit4DistributedTes
 
   @Before
   public void before() throws Exception {
-    serverStarter.startServer(getProperties(), 0, pdxPersistent);
+    ServerStarterRule serverStarter = new ServerStarterRule(getProperties());
+    serverStarter.startServer(0, pdxPersistent);
     serverPort = serverStarter.server.getPort();
     Region region =
         serverStarter.cache.createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);

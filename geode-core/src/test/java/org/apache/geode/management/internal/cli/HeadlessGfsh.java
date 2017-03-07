@@ -98,18 +98,14 @@ public class HeadlessGfsh implements ResultHandler {
 
   // TODO : Have non-blocking method also where we move executeCommand call to separate thread-pool
   public boolean executeCommand(String command) {
-    boolean success = false;
+    boolean status = false;
     try {
       outputString = null;
-      success = shell.executeScriptLine(command);
+      status = shell.executeScriptLine(command);
     } catch (Exception e) {
       outputString = e.getMessage();
     }
-    if (!success && shell.output != null) {
-      outputString = shell.output.toString();
-      shell.output.reset();
-    }
-    return success;
+    return status;
   }
 
   public int getCommandExecutionStatus() {

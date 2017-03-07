@@ -15,6 +15,14 @@
 
 package org.apache.geode.management.internal.web.shell;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.geode.internal.lang.Filter;
 import org.apache.geode.internal.lang.Initable;
 import org.apache.geode.internal.lang.StringUtils;
@@ -28,20 +36,14 @@ import org.apache.geode.management.internal.web.domain.LinkIndex;
 import org.apache.geode.management.internal.web.http.ClientHttpRequest;
 import org.apache.geode.management.internal.web.http.HttpHeader;
 import org.apache.geode.management.internal.web.util.ConvertUtils;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.util.UriTemplate;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * The RestHttpOperationInvoker class is an implementation of the OperationInvoker interface that
@@ -374,8 +376,7 @@ public class RestHttpOperationInvoker extends AbstractHttpOperationInvoker imple
    * (execution).
    * 
    * @param command the command requested/entered by the user to be processed.
-   * @return either a json string of the CommandResult or a Path to a temp file if the response is a
-   *         InputStream
+   * @return the result of the command execution.
    * @see #createHttpRequest(org.apache.geode.management.internal.cli.CommandRequest)
    * @see #handleResourceAccessException(org.springframework.web.client.ResourceAccessException)
    * @see #isConnected()
@@ -387,18 +388,15 @@ public class RestHttpOperationInvoker extends AbstractHttpOperationInvoker imple
    * @see org.springframework.http.ResponseEntity
    */
   @Override
-  public Object processCommand(final CommandRequest command) {
+  public String processCommand(final CommandRequest command) {
     assertState(isConnected(),
         "Gfsh must be connected to the GemFire Manager in order to process commands remotely!");
 
-    Object result = null;
     try {
-      if (command.isDownloadFile()) {
-        result = downloadResponseToTempFile(createHttpRequest(command), command.getParameters());
-      } else {
-        result = send(createHttpRequest(command), String.class, command.getParameters());
-      }
-      return result;
+      ResponseEntity<String> response =
+          send(createHttpRequest(command), String.class, command.getParameters());
+
+      return response.getBody();
     } catch (RestApiCallForCommandNotFoundException e) {
       return simpleProcessCommand(command, e);
     } catch (ResourceAccessException e) {

@@ -15,26 +15,25 @@
 
 package org.apache.geode.management.internal.security;
 
-import static org.apache.geode.distributed.ConfigurationProperties.JMX_MANAGER_PORT;
-import static org.apache.geode.distributed.ConfigurationProperties.SECURITY_MANAGER;
+import static org.apache.geode.distributed.ConfigurationProperties.*;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.security.TestSecurityManager;
-import org.apache.geode.test.dunit.rules.ServerStarterRule;
+import java.io.Serializable;
+import java.util.Properties;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.rules.ExternalResource;
 
-import java.io.Serializable;
-import java.util.Properties;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.security.TestSecurityManager;
+import org.apache.geode.test.dunit.rules.ServerStarterRule;
 
 /**
  * this rule would help you start up a cache server with the given properties in the current VM
  */
 public class CacheServerStartupRule extends ExternalResource implements Serializable {
 
-  private ServerStarterRule serverStarter = new ServerStarterRule();
-  private Properties properties = new Properties();
+  private ServerStarterRule serverStarter;
 
   public static CacheServerStartupRule withDefaultSecurityJson(int jmxManagerPort) {
     return new CacheServerStartupRule(jmxManagerPort,
@@ -42,7 +41,7 @@ public class CacheServerStartupRule extends ExternalResource implements Serializ
   }
 
   public CacheServerStartupRule(int jmxManagerPort, String jsonFile) {
-    properties = new Properties();
+    Properties properties = new Properties();
     if (jmxManagerPort > 0) {
       properties.put(JMX_MANAGER_PORT, String.valueOf(jmxManagerPort));
     }
@@ -50,12 +49,12 @@ public class CacheServerStartupRule extends ExternalResource implements Serializ
       properties.put(SECURITY_MANAGER, TestSecurityManager.class.getName());
       properties.put(TestSecurityManager.SECURITY_JSON, jsonFile);
     }
+    serverStarter = new ServerStarterRule(properties);
   }
 
   @Before
   public void before() throws Throwable {
-    serverStarter.before();
-    serverStarter.startServer(properties);
+    serverStarter.startServer();
     serverStarter.cache.createRegionFactory().create("region1");
   }
 
