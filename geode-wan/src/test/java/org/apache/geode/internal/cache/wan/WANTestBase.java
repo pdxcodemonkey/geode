@@ -73,6 +73,7 @@ import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.LocatorDiscoveryCallbackAdapter;
+import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.locator.wan.LocatorMembershipListener;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
 import org.apache.geode.cache.server.CacheServer;
@@ -3009,6 +3010,16 @@ public class WANTestBase extends JUnit4DistributedTestCase {
     return System.currentTimeMillis();
   }
 
+  public static void putRemoteSiteLocators(int remoteDsId, Set<String> remoteLocators) {
+    List<Locator> locatorsConfigured = Locator.getLocators();
+    Locator locator = locatorsConfigured.get(0);
+    if (remoteLocators != null) {
+      // Add fake remote locators to the locators map
+      ((InternalLocator) locator).getlocatorMembershipListener().getAllServerLocatorsInfo()
+          .put(remoteDsId, remoteLocators);
+    }
+  }
+
   public static void checkLocatorsinSender(String senderId, InetSocketAddress locatorToWaitFor)
       throws InterruptedException {
 
@@ -3388,6 +3399,18 @@ public class WANTestBase extends JUnit4DistributedTestCase {
       }
     }
     assertTrue(sender.isRunning());
+  }
+
+  public static void verifyPool(String senderId, boolean poolShouldExist,
+      int expectedPoolLocatorsSize) {
+    AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
+    PoolImpl pool = sender.getProxy();
+    if (poolShouldExist) {
+      assertNotNull(pool);
+      assertEquals(expectedPoolLocatorsSize, pool.getLocators().size());
+    } else {
+      assertNull(pool);
+    }
   }
 
   public static void removeSenderFromTheRegion(String senderId, String regionName) {

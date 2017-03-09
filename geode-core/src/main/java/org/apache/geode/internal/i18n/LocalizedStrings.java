@@ -7665,6 +7665,9 @@ public class LocalizedStrings {
       new StringId(6647,
           "Cannot create GatewaySender {0} because the maximum ({1}) has been reached");
 
+  public static final StringId PoolFactoryImpl_CAUGHT_EXCEPTION_ATTEMPTING_TO_ADD_REMOTE_LOCATOR_0 =
+      new StringId(6653,
+          "Caught the following exception attempting to add remote locator {0}. The locator will be ignored.");
   /** Testing strings, messageId 90000-99999 **/
 
   /**
