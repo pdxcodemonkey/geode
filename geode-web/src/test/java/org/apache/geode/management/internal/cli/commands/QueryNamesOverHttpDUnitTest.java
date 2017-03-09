@@ -48,21 +48,21 @@ public class QueryNamesOverHttpDUnitTest {
   protected static int jmxPort = ports[0];
   protected static int httpPort = ports[1];
 
+  protected static Properties locatorProps = new Properties() {
+    {
+      setProperty(HTTP_SERVICE_BIND_ADDRESS, "localhost");
+      setProperty(HTTP_SERVICE_PORT, httpPort + "");
+      setProperty(JMX_MANAGER_PORT, jmxPort + "");
+    }
+  };
+
   @Rule
   public LocatorStarterRule locatorRule = new LocatorStarterRule();
 
   @Before
   public void before() throws Exception {
-    Properties locatorProps = new Properties() {
-      {
-        setProperty(HTTP_SERVICE_BIND_ADDRESS, "localhost");
-        setProperty(HTTP_SERVICE_PORT, httpPort + "");
-        setProperty(JMX_MANAGER_PORT, jmxPort + "");
-      }
-    };
     locatorRule.startLocator(locatorProps);
   }
-
 
   @Test
   public void testQueryNameOverHttp() throws Exception {
