@@ -15,7 +15,6 @@
 
 package org.apache.geode.management.internal.web.controllers;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.geode.internal.lang.StringUtils;
 import org.apache.geode.management.internal.cli.i18n.CliStrings;
 import org.apache.geode.management.internal.cli.result.ResultBuilder;
@@ -92,14 +91,11 @@ public class ExportLogController extends AbstractCommandsController {
     String filePath = ResultBuilder.fromJson(result).nextLine().trim();
 
     HttpHeaders respHeaders = new HttpHeaders();
-    File zipFile = new File(filePath);
     try {
-      InputStreamResource isr = new InputStreamResource(new FileInputStream(zipFile));
+      InputStreamResource isr = new InputStreamResource(new FileInputStream(new File(filePath)));
       return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
     } catch (Exception ex) {
       throw new RuntimeException("IOError writing file to output stream", ex);
-    } finally {
-      FileUtils.deleteQuietly(zipFile);
     }
   }
 }

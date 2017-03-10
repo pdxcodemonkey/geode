@@ -25,6 +25,7 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.execute.FunctionContextImpl;
+import org.apache.geode.test.dunit.rules.Server;
 import org.apache.geode.test.dunit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.categories.IntegrationTest;
 import org.apache.logging.log4j.Level;
@@ -40,12 +41,15 @@ import java.io.IOException;
 public class ExportLogsFunctionIntegrationTest {
 
   @Rule
-  public ServerStarterRule serverStarterRule = new ServerStarterRule().startServer();
+  public ServerStarterRule serverStarterRule = new ServerStarterRule();
+
+  private Server server;
   private File serverWorkingDir;
 
   @Before
   public void setup() throws Exception {
-    serverWorkingDir = serverStarterRule.getWorkingDir();
+    server = serverStarterRule.startServer();
+    serverWorkingDir = server.getWorkingDir();
   }
 
   @Test

@@ -25,7 +25,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -59,10 +58,6 @@ public class ExportLogsOverHttpDUnitTest extends ExportStatsDUnitTest {
         new ZipFile(zipPath).stream().map(ZipEntry::getName).collect(Collectors.toSet());
 
     assertThat(actualZipEntries).isEqualTo(expectedZipEntries);
-
-    // also verify that the zip file on locator is deleted
-    assertThat(Arrays.stream(locator.getWorkingDir().listFiles())
-        .filter(file -> file.getName().endsWith(".zip")).collect(Collectors.toSet())).isEmpty();
   }
 
   protected String getZipPathFromCommandResult(String message) {
