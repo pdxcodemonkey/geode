@@ -1123,18 +1123,20 @@ public class SocketCreator {
   private void printConfig() {
     if (!configShown && logger.isDebugEnabled()) {
       configShown = true;
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append("SSL Configuration: \n");
-      sb.append("  ssl-enabled = " + this.sslConfig.isEnabled()).append("\n");
+      sb.append("  ssl-enabled = ").append(this.sslConfig.isEnabled()).append("\n");
       // add other options here....
       for (String key : System.getProperties().stringPropertyNames()) { // fix for 46822
         if (key.startsWith("javax.net.ssl")) {
-          sb.append("  ").append(key).append(" = ").append(System.getProperty(key)).append("\n");
+          String redactedString = ArgumentRedactor.redact(key, System.getProperty(key));
+          sb.append("  ").append(key).append(" = ").append(redactedString).append("\n");
         }
       }
       logger.debug(sb.toString());
     }
   }
+
 
 
   protected void initializeClientSocketFactory() {
