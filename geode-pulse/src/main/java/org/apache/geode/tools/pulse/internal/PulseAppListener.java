@@ -26,14 +26,11 @@ import org.apache.geode.tools.pulse.internal.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,6 +41,8 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 /**
  * This class is used for checking the application running mode i.e. Embedded or not
@@ -147,13 +146,6 @@ public class PulseAppListener implements ServletContextListener {
       try {
         // Get host name of machine running pulse in embedded mode
         sysPulseHost = InetAddress.getLocalHost().getCanonicalHostName();
-      } catch (UnknownHostException e) {
-        if (LOGGER.fineEnabled()) {
-          LOGGER.fine(
-              resourceBundle.getString("LOG_MSG_JMX_CONNECTION_UNKNOWN_HOST") + e.getMessage());
-        }
-        // Set default host name
-        sysPulseHost = PulseConstants.GEMFIRE_DEFAULT_HOST;
       } catch (Exception e) {
         if (LOGGER.fineEnabled()) {
           LOGGER.fine(
@@ -162,7 +154,10 @@ public class PulseAppListener implements ServletContextListener {
         // Set default host name
         sysPulseHost = PulseConstants.GEMFIRE_DEFAULT_HOST;
       }
-      sysPulsePort = PulseConstants.GEMFIRE_DEFAULT_PORT;
+      sysPulsePort = System.getProperty(PulseConstants.SYSTEM_PROPERTY_PULSE_PORT);
+      if (StringUtils.isNotNullNotEmptyNotWhiteSpace(sysPulsePort)) {
+        sysPulsePort = PulseConstants.GEMFIRE_DEFAULT_PORT;
+      }
 
       boolean pulseEmbededSqlf =
           Boolean.getBoolean(PulseConstants.SYSTEM_PROPERTY_PULSE_EMBEDDED_SQLF);
