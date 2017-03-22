@@ -16,13 +16,13 @@
 
 package org.apache.geode.tools.pulse.tests.ui;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jayway.awaitility.Awaitility;
+import org.apache.geode.internal.admin.SSLConfig;
+import org.apache.geode.management.internal.JettyHelper;
+import org.apache.geode.test.junit.categories.UITest;
+import org.apache.geode.tools.pulse.tests.Server;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,14 +35,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import org.apache.geode.internal.admin.SSLConfig;
-import org.apache.geode.management.internal.JettyHelper;
-import org.apache.geode.test.junit.categories.UITest;
-import org.apache.geode.tools.pulse.tests.PulseTestLocators;
-import org.apache.geode.tools.pulse.tests.Server;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 @Category(UITest.class)
 @FixMethodOrder(MethodSorters.JVM)
@@ -67,7 +63,7 @@ public class PulseAnonymousUserTest {
 
   @Test
   public void userCanGetToPulseLoginPage() {
-    driver.get(pulseURL + "/Login.html");
+    driver.get(pulseURL + "/login.html");
     System.err.println("Pulse url: " + pulseURL);
     System.err.println(driver.getPageSource().toString());
 

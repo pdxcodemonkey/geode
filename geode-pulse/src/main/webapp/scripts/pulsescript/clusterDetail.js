@@ -208,7 +208,7 @@ function createMembersTreeMapDefault() {
           },
           onClick : function(node) {
             if (!node.data.initial) {
-              location.href = 'MemberDetails.html?member=' + node.id
+              location.href = 'memberDetails.html?member=' + node.id
                   + '&memberName=' + node.name;
             }
           }
@@ -351,7 +351,7 @@ function createMembersTreeMapSG(){
                     clusterSGMemberTreeMap.out();
                   }
                 } else if(node._depth == 2 && (!node.data.initial)){
-                  location.href = 'MemberDetails.html?member=' + node.data.id
+                  location.href = 'memberDetails.html?member=' + node.data.id
                   + '&memberName=' + node.data.name;
                 }
               }
@@ -526,7 +526,7 @@ function createMembersTreeMapRZ(){
                     clusterRZMemberTreeMap.out();
                   }
                 } else if(node._depth == 2 && (!node.data.initial)){
-                  location.href = 'MemberDetails.html?member=' + node.data.id
+                  location.href = 'memberDetails.html?member=' + node.data.id
                   + '&memberName=' + node.data.name;
                 }
               }
@@ -889,7 +889,7 @@ function createMemberGridDefault() {
         onSelectRow : function(rowid, status, event) {
           if (!event || event.which == 1) { // mouse left button click
             var member = rowid.split("&");
-            location.href = 'MemberDetails.html?member=' + member[0]
+            location.href = 'memberDetails.html?member=' + member[0]
                 + '&memberName=' + member[1];
           }
         },
@@ -1073,7 +1073,7 @@ function createMemberGridSG() {
         onSelectRow : function(rowid, status, event) {
           if (!event || event.which == 1) { // mouse left button click
             var member = rowid.split("&");
-            location.href = 'MemberDetails.html?member=' + member[0]
+            location.href = 'memberDetails.html?member=' + member[0]
                 + '&memberName=' + member[1];
           }
         },
@@ -1257,7 +1257,7 @@ function createMemberGridRZ() {
         onSelectRow : function(rowid, status, event) {
           if (!event || event.which == 1) { // mouse left button click
             var member = rowid.split("&");
-            location.href = 'MemberDetails.html?member=' + member[0]
+            location.href = 'memberDetails.html?member=' + member[0]
                 + '&memberName=' + member[1];
           }
         },

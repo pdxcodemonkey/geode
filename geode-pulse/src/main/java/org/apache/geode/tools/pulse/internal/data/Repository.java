@@ -198,6 +198,9 @@ public class Repository {
             LOGGER.fine(e.getMessage());
           }
         }
+      } else {
+        data.setJmxUserPassword(password);
+
       }
       return data;
     }
