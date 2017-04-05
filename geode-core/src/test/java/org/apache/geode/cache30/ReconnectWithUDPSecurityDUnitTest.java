@@ -17,8 +17,12 @@ package org.apache.geode.cache30;
 import java.util.Properties;
 
 import org.apache.geode.distributed.internal.DistributionConfig;
+import org.apache.geode.test.junit.categories.DistributedTest;
+import org.junit.experimental.categories.Category;
+
 import static org.apache.geode.distributed.ConfigurationProperties.*;
 
+@Category(DistributedTest.class)
 public class ReconnectWithUDPSecurityDUnitTest extends ReconnectDUnitTest {
 
   public ReconnectWithUDPSecurityDUnitTest() {
