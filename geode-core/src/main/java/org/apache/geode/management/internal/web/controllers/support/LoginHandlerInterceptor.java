@@ -14,17 +14,6 @@
  */
 package org.apache.geode.management.internal.web.controllers.support;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
 import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.logging.LogService;
@@ -33,7 +22,16 @@ import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.management.internal.cli.multistep.CLIMultiStepHelper;
 import org.apache.geode.management.internal.security.ResourceConstants;
 import org.apache.geode.management.internal.web.util.UriUtils;
-import org.apache.geode.security.Authenticator;
+import org.apache.logging.log4j.Logger;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The GetEnvironmentHandlerInterceptor class handles extracting Gfsh environment variables encoded
@@ -51,8 +49,6 @@ public class LoginHandlerInterceptor extends HandlerInterceptorAdapter {
   private static final Logger logger = LogService.getLogger();
 
   private Cache cache;
-
-  private Authenticator auth = null;
 
   private SecurityService securityService = IntegratedSecurityService.getSecurityService();
 
@@ -94,27 +90,22 @@ public class LoginHandlerInterceptor extends HandlerInterceptorAdapter {
       }
     }
 
-
-
-    for (Enumeration<String> requestHeaders = request.getHeaderNames(); requestHeaders
-        .hasMoreElements();) {
-
-      // since http request headers are case-insensitive and all our security-* properties
-      // are in lower case, it's safe to do toLowerCase here.
-      final String requestHeader = requestHeaders.nextElement().toLowerCase();
-
-      if (requestHeader.startsWith(SECURITY_VARIABLE_REQUEST_HEADER_PREFIX)) {
-        requestParameterValues.put(requestHeader, request.getHeader(requestHeader));
-      }
-    }
-
-    String username = requestParameterValues.get(ResourceConstants.USER_NAME);
-    String password = requestParameterValues.get(ResourceConstants.PASSWORD);
-    this.securityService.login(username, password);
-
     ENV.set(requestParameterValues);
 
+    String username = request.getHeader(ResourceConstants.USER_NAME);
+    String password = request.getHeader(ResourceConstants.PASSWORD);
+    Properties credentials = new Properties();
+    if (username != null)
+      credentials.put(ResourceConstants.USER_NAME, username);
+    if (password != null)
+      credentials.put(ResourceConstants.PASSWORD, password);
+    this.securityService.login(credentials);
+
     return true;
+  }
+
+  public void setSecurityService(SecurityService securityService) {
+    this.securityService = securityService;
   }
 
 
