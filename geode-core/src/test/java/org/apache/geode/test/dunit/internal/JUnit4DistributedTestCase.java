@@ -47,6 +47,7 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.SocketCreator;
 import org.apache.geode.internal.admin.ClientStatsManager;
+import org.apache.geode.internal.cache.CacheServerLauncher;
 import org.apache.geode.internal.cache.DiskStoreObserver;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.HARegion;
@@ -564,6 +565,7 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
     disconnectFromDS();
     // keep alphabetized to detect duplicate lines
     CacheCreation.clearThreadLocals();
+    CacheServerLauncher.clearStatics();
     CacheServerTestUtil.clearCacheReference();
     ClientProxyMembershipID.system = null;
     ClientServerTestCase.AUTO_LOAD_BALANCE = false;
