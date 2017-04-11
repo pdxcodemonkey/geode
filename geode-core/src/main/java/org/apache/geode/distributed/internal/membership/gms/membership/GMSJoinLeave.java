@@ -824,11 +824,21 @@ public class GMSJoinLeave implements JoinLeave, MessageHandler {
 
   boolean prepareView(NetView view, List<InternalDistributedMember> newMembers)
       throws InterruptedException {
+    if (services.getCancelCriterion().isCancelInProgress()
+        || services.getManager().shutdownInProgress()
+        || services.getManager().isShutdownStarted()) {
+      throw new InterruptedException("shutting down");
+    }
     return sendView(view, true, this.prepareProcessor);
   }
 
   void sendView(NetView view, List<InternalDistributedMember> newMembers)
       throws InterruptedException {
+    if (services.getCancelCriterion().isCancelInProgress()
+        || services.getManager().shutdownInProgress()
+        || services.getManager().isShutdownStarted()) {
+      throw new InterruptedException("shutting down");
+    }
     sendView(view, false, this.viewProcessor);
   }
 
@@ -2119,6 +2129,7 @@ public class GMSJoinLeave implements JoinLeave, MessageHandler {
             } catch (DistributedSystemDisconnectedException e) {
               shutdown = true;
             } catch (InterruptedException e) {
+              logger.info("View Creator thread interrupted");
               shutdown = true;
             }
             requests = null;

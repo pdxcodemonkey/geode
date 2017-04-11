@@ -2569,4 +2569,11 @@ public class GMSMembershipManager implements MembershipManager, Manager {
     }
   }
 
+
+  @Override
+  public boolean isShutdownStarted() {
+    DistributionManager dm = listener.getDM();
+    return shutdownInProgress || (dm != null && dm.isShutdownStarted());
+  }
+
 }
