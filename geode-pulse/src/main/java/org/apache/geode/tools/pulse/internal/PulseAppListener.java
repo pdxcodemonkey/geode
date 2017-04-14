@@ -155,7 +155,7 @@ public class PulseAppListener implements ServletContextListener {
         sysPulseHost = PulseConstants.GEMFIRE_DEFAULT_HOST;
       }
       sysPulsePort = System.getProperty(PulseConstants.SYSTEM_PROPERTY_PULSE_PORT);
-      if (StringUtils.isNotNullNotEmptyNotWhiteSpace(sysPulsePort)) {
+      if (!StringUtils.isNotNullNotEmptyNotWhiteSpace(sysPulsePort)) {
         sysPulsePort = PulseConstants.GEMFIRE_DEFAULT_PORT;
       }
 
