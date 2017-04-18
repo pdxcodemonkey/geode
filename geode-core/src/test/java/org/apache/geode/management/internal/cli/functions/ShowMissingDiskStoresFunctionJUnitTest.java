@@ -49,6 +49,7 @@ import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
+import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionRegionConfig;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.execute.FunctionContextImpl;
@@ -108,15 +109,13 @@ public class ShowMissingDiskStoresFunctionJUnitTest {
   }
 
   private class TestSPRFFunc1 extends ShowMissingDiskStoresFunction {
-    @Override
-    protected Cache getCache() {
+    protected InternalCache getCache() {
       return null;
     }
   }
 
   private class TestSPRFFunc2 extends ShowMissingDiskStoresFunction {
-    @Override
-    protected Cache getCache() {
+    protected InternalCache getCache() {
       return cache;
     }
   }
