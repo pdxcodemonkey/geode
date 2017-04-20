@@ -5721,6 +5721,7 @@ public final class Oplog implements CompactableOplog, Flushable {
     FileUtil.copy(this.drf.f, targetDir);
 
     // this krf existence check fixes 45089
+    // TODO: should we wait for the async KRF creation to finish by calling this.finishKrf?
     if (getParent().getDiskInitFile().hasKrf(this.oplogId)) {
       FileUtil.copy(this.getKrfFile(), targetDir);
     }

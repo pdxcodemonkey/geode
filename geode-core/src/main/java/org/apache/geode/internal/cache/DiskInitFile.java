@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ import org.apache.geode.internal.cache.persistence.PersistentMemberPattern;
 import org.apache.geode.internal.cache.versions.DiskRegionVersionVector;
 import org.apache.geode.internal.cache.versions.RegionVersionHolder;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
+import org.apache.geode.internal.concurrent.ConcurrentHashSet;
 import org.apache.geode.internal.i18n.LocalizedStrings;
 import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.internal.logging.log4j.LogMarker;
@@ -333,7 +335,9 @@ public class DiskInitFile implements DiskInitFileInterpreter {
 
   private final LongOpenHashSet crfIds;
   private final LongOpenHashSet drfIds;
-  private final LongOpenHashSet krfIds;
+  // krfIds uses a concurrent impl because backup
+  // can call hasKrf concurrently with cmnKrfCreate
+  private final ConcurrentHashSet<Long> krfIds;
 
   /**
    * Map used to keep track of regions we know of from the DiskInitFile but that do not yet exist
@@ -1613,7 +1617,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   }
 
   private void saveKrfIds() {
-    for (LongIterator i = this.krfIds.iterator(); i.hasNext();) {
+    for (Iterator<Long> i = this.krfIds.iterator(); i.hasNext();) {
       writeIFRecord(IFREC_KRF_CREATE, i.next());
       this.ifLiveRecordCount++;
       this.ifTotalRecordCount++;
@@ -1881,7 +1885,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
     this.instIds = new IntOpenHashSet();
     this.crfIds = new LongOpenHashSet();
     this.drfIds = new LongOpenHashSet();
-    this.krfIds = new LongOpenHashSet();
+    this.krfIds = new ConcurrentHashSet<>();
     recover();
     if (this.parent.isOffline() && !this.parent.isOfflineCompacting()
         && !this.parent.isOfflineModify()) {
