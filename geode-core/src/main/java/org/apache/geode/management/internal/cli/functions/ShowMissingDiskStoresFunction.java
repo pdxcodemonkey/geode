@@ -54,7 +54,7 @@ public class ShowMissingDiskStoresFunction extends FunctionAdapter implements In
         final DistributedMember member = cache.getMyId();
 
         // Missing DiskStores
-        PersistentMemberManager mm = ((GemFireCacheImpl)cache).getPersistentMemberManager();
+        PersistentMemberManager mm = ((GemFireCacheImpl) cache).getPersistentMemberManager();
         Map<String, Set<PersistentMemberID>> waitingRegions = mm.getWaitingRegions();
         for (Set<PersistentMemberID> entry : waitingRegions.values()) {
           for (PersistentMemberID id : entry) {
