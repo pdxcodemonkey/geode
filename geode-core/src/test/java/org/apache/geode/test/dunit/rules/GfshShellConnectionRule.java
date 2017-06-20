@@ -17,7 +17,13 @@ package org.apache.geode.test.dunit.rules;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.function.Supplier;
+
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.Description;
+
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.CliUtil;
 import org.apache.geode.management.internal.cli.HeadlessGfsh;
@@ -26,11 +32,6 @@ import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.junit.rules.DescribedExternalResource;
-import org.json.JSONArray;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.Description;
-
-import java.util.function.Supplier;
 
 /**
  * Class which eases the connection to the locator/jmxManager in Gfsh shell and execute gfsh
@@ -228,7 +229,9 @@ public class GfshShellConnectionRule extends DescribedExternalResource {
 
   public CommandResult executeAndVerifyCommand(String command) throws Exception {
     CommandResult result = executeCommand(command);
-    assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
+    assertThat(result.getStatus())
+        .describedAs("Failure in command: " + command + "\n Result " + result)
+        .isEqualTo(Result.Status.OK);
     return result;
   }
 
