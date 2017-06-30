@@ -101,7 +101,7 @@ import org.apache.geode.internal.util.ArrayUtils;
  * @since GemFire 2.0.2
  */
 @SuppressWarnings("deprecation")
-public class AcceptorImpl extends Acceptor implements Runnable {
+public class AcceptorImpl extends Acceptor implements Runnable, CommBufferPool {
   private static final Logger logger = LogService.getLogger();
 
   private static final boolean isJRockit = System.getProperty("java.vm.name").contains("JRockit");
@@ -1342,7 +1342,7 @@ public class AcceptorImpl extends Acceptor implements Runnable {
     }
   }
 
-  public ByteBuffer takeCommBuffer() {
+  private ByteBuffer takeCommBuffer() {
     ByteBuffer result = (ByteBuffer) this.commBufferQueue.poll();
     if (result == null) {
       result = ByteBuffer.allocateDirect(this.socketBufferSize);
@@ -1350,7 +1350,7 @@ public class AcceptorImpl extends Acceptor implements Runnable {
     return result;
   }
 
-  public void releaseCommBuffer(ByteBuffer bb) {
+  private void releaseCommBuffer(ByteBuffer bb) {
     if (bb == null) { // fix for bug 37107
       return;
     }
@@ -1779,5 +1779,24 @@ public class AcceptorImpl extends Acceptor implements Runnable {
    */
   public ServerConnection[] getAllServerConnectionList() {
     return this.allSCList;
+  }
+
+  @Override
+  public void setTLCommBuffer() {
+    // The thread local will only be set if maxThreads has been set.
+    if (!isSelector()) {
+      return;
+    }
+
+    Message.setTLCommBuffer(takeCommBuffer());
+  }
+
+  @Override
+  public void releaseTLCommBuffer() {
+    if (!isSelector()) {
+      return;
+    }
+
+    releaseCommBuffer(Message.setTLCommBuffer(null));
   }
 }

@@ -1129,7 +1129,7 @@ public class ServerConnection implements Runnable {
       try {
         this.stats.decThreadQueueSize();
         if (!isTerminated()) {
-          Message.setTLCommBuffer(getAcceptor().takeCommBuffer());
+          getAcceptor().setTLCommBuffer();
           doOneMessage();
           if (this.processMessages && !(this.crHelper.isShutdown())) {
             registerWithSelector(); // finished msg so reregister
@@ -1145,7 +1145,7 @@ public class ServerConnection implements Runnable {
             LocalizedMessage.create(LocalizedStrings.ServerConnection_0__UNEXPECTED_EXCEPTION, ex));
         setClientDisconnectedException(ex);
       } finally {
-        getAcceptor().releaseCommBuffer(Message.setTLCommBuffer(null));
+        getAcceptor().releaseTLCommBuffer();
         // DistributedSystem.releaseThreadsSockets();
         unsetOwner();
         setNotProcessingMessage();
