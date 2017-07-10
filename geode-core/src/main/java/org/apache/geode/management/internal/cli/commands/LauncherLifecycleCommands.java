@@ -1170,8 +1170,6 @@ public class LauncherLifecycleCommands implements GfshCommand {
       return ResultBuilder.createUserErrorResult(message);
     } catch (IllegalStateException e) {
       return ResultBuilder.createUserErrorResult(e.getMessage());
-    } catch (ClusterConfigurationNotAvailableException e) {
-      return ResultBuilder.createShellClientErrorResult(e.getMessage());
     } catch (VirtualMachineError e) {
       SystemFailure.initiateFailure(e);
       throw e;

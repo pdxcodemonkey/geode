@@ -357,6 +357,7 @@ org/apache/geode/internal/concurrent/CompactConcurrentHashSet2,true,724906924676
 org/apache/geode/internal/concurrent/CompactConcurrentHashSet2$Segment,true,2249069246763182397,loadFactor:float
 org/apache/geode/internal/concurrent/ConcurrentHashSet,true,-3338819662572203596,map:java/util/concurrent/ConcurrentHashMap
 org/apache/geode/internal/concurrent/LI,true,-6014738350371493969,className:java/lang/String,identityHashCode:int,lockedStackFrame:java/lang/StackTraceElement
+org/apache/geode/internal/config/ClusterConfigurationNotAvailableException,true,771319836094239284
 org/apache/geode/internal/datasource/AbstractDataSource,false,configProps:org/apache/geode/internal/datasource/ConfiguredDataSourceProperties,isActive:boolean,jdbcDriver:java/lang/String,loginTimeOut:int,password:java/lang/String,serverName:java/lang/String,url:java/lang/String,user:java/lang/String
 org/apache/geode/internal/datasource/AbstractPoolCache,false,INIT_LIMIT:int,MAX_LIMIT:int,activeConnections:int,configProps:org/apache/geode/internal/datasource/ConfiguredDataSourceProperties,connEventListner:java/util/EventListener,expirationTime:int,expiredConns:java/util/List,loginTimeOut:int,sleepTime:long,th:java/lang/Thread,timeOut:int,totalConnections:int
 org/apache/geode/internal/datasource/ConfiguredDataSourceProperties,true,1241739895646314739,connPoolDSClass:java/lang/String,expirationTime:int,initialPoolSize:int,jdbcDriver:java/lang/String,loginTimeOut:int,maxPoolSize:int,mcfClass:java/lang/String,password:java/lang/String,timeOut:int,txnType:java/lang/String,url:java/lang/String,user:java/lang/String,xadsClass:java/lang/String
@@ -539,9 +540,6 @@ org/apache/geode/management/internal/cli/functions/CreateDefinedIndexesFunction,
 org/apache/geode/management/internal/cli/functions/CreateDiskStoreFunction,true,1
 org/apache/geode/management/internal/cli/functions/CreateIndexFunction,true,1
 org/apache/geode/management/internal/cli/functions/DataCommandFunction,true,1,optimizeForWrite:boolean
-org/apache/geode/management/internal/cli/functions/DataCommandFunction$SelectExecStep,true,1
-org/apache/geode/management/internal/cli/functions/DataCommandFunction$SelectMoveStep,true,1
-org/apache/geode/management/internal/cli/functions/DataCommandFunction$SelectQuitStep,true,1
 org/apache/geode/management/internal/cli/functions/DeployFunction,true,1
 org/apache/geode/management/internal/cli/functions/DescribeDiskStoreFunction,false
 org/apache/geode/management/internal/cli/functions/DestroyDiskStoreFunction,true,1
