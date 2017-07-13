@@ -41,6 +41,7 @@ import org.apache.geode.distributed.internal.membership.gms.Services;
 import org.apache.geode.distributed.internal.membership.gms.Services.Stopper;
 import org.apache.geode.distributed.internal.membership.gms.interfaces.Authenticator;
 import org.apache.geode.distributed.internal.membership.gms.interfaces.HealthMonitor;
+import org.apache.geode.distributed.internal.membership.gms.interfaces.Locator;
 import org.apache.geode.distributed.internal.membership.gms.interfaces.Manager;
 import org.apache.geode.distributed.internal.membership.gms.interfaces.Messenger;
 import org.apache.geode.distributed.internal.membership.gms.locator.FindCoordinatorRequest;
@@ -98,6 +99,7 @@ public class GMSJoinLeaveJUnitTest {
   private GMSJoinLeave gmsJoinLeave;
   private Manager manager;
   private Stopper stopper;
+  private TestLocator testLocator;
   private InternalDistributedMember removeMember = null;
   private InternalDistributedMember leaveMember = null;
 
@@ -144,6 +146,9 @@ public class GMSJoinLeaveJUnitTest {
     when(services.getManager()).thenReturn(manager);
     when(services.getHealthMonitor()).thenReturn(healthMonitor);
 
+    testLocator = new TestLocator();
+    when(services.getLocator()).thenReturn(testLocator);
+
     Timer t = new Timer(true);
     when(services.getTimer()).thenReturn(t);
 
@@ -169,6 +174,24 @@ public class GMSJoinLeaveJUnitTest {
       gmsJoinLeave.stop();
       gmsJoinLeave.stopped();
     }
+  }
+
+  static class TestLocator implements Locator {
+
+    boolean isCoordinator;
+
+    @Override
+    public void installView(NetView v) {}
+
+    @Override
+    public void setIsCoordinator(boolean isCoordinator) {
+      this.isCoordinator = isCoordinator;
+    }
+
+    public boolean isCoordinator() {
+      return isCoordinator;
+    }
+
   }
 
   @Test
@@ -1130,9 +1153,12 @@ public class GMSJoinLeaveJUnitTest {
         gmsJoinLeave.processMessage(msg);
       }
 
+      assertTrue(testLocator.isCoordinator);
+
       Awaitility.await("waiting for view creator to stop").atMost(5000, MILLISECONDS)
           .until(() -> !gmsJoinLeave.getViewCreator().isAlive());
       assertEquals(1, gmsJoinLeave.getView().getViewId());
+      assertFalse(testLocator.isCoordinator);
 
     } finally {
       System.getProperties().remove(GMSJoinLeave.BYPASS_DISCOVERY_PROPERTY);

@@ -1540,11 +1540,6 @@ public class GMSJoinLeave implements JoinLeave, MessageHandler {
     if (viewCreator != null && !viewCreator.isShutdown()) {
       logger.debug("Shutting down ViewCreator");
       viewCreator.shutdown();
-      org.apache.geode.distributed.internal.membership.gms.interfaces.Locator locator =
-          services.getLocator();
-      if (locator != null) {
-        locator.setIsCoordinator(false);
-      }
       try {
         viewCreator.join(1000);
       } catch (InterruptedException e) {
@@ -2208,6 +2203,11 @@ public class GMSJoinLeave implements JoinLeave, MessageHandler {
       } finally {
         shutdown = true;
         informToPendingJoinRequests();
+        org.apache.geode.distributed.internal.membership.gms.interfaces.Locator locator =
+            services.getLocator();
+        if (locator != null) {
+          locator.setIsCoordinator(false);
+        }
       }
     }
 
