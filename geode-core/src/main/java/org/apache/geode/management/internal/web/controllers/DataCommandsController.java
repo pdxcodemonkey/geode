@@ -185,8 +185,6 @@ public class DataCommandsController extends AbstractCommandsController {
   @RequestMapping(method = RequestMethod.GET, value = "/regions/data/query")
   public Callable<ResponseEntity<String>> query(final WebRequest request,
       @RequestParam(CliStrings.QUERY__QUERY) final String oql,
-      @RequestParam(value = CliStrings.QUERY__STEPNAME,
-          defaultValue = CliStrings.QUERY__STEPNAME__DEFAULTVALUE) final String stepName,
       @RequestParam(value = CliStrings.QUERY__INTERACTIVE,
           defaultValue = "true") final Boolean interactive) {
     // logRequest(request);
@@ -194,7 +192,6 @@ public class DataCommandsController extends AbstractCommandsController {
     final CommandStringBuilder command = new CommandStringBuilder(CliStrings.QUERY);
 
     command.addOption(CliStrings.QUERY__QUERY, decode(oql));
-    command.addOption(CliStrings.QUERY__STEPNAME, stepName);
     command.addOption(CliStrings.QUERY__INTERACTIVE,
         String.valueOf(Boolean.TRUE.equals(interactive)));
 
