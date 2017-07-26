@@ -84,7 +84,7 @@ import java.util.logging.Logger;
  * @since GemFire 7.0
  */
 public class Gfsh extends JLineShell {
-  public static final int DEFAULT_APP_FETCH_SIZE = 1000;
+  public static final int DEFAULT_APP_FETCH_SIZE = 100;
   public static final int DEFAULT_APP_LAST_EXIT_STATUS = 0;
   public static final int DEFAULT_APP_COLLECTION_LIMIT = 20;
   public static final boolean DEFAULT_APP_QUIET_EXECUTION = false;

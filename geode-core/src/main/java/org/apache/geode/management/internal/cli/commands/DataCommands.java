@@ -1091,30 +1091,6 @@ public class DataCommands implements GfshCommand {
     return makePresentationResult(dataResult);
   }
 
-  @CliMetaData(relatedTopic = {CliStrings.TOPIC_GEODE_DATA, CliStrings.TOPIC_GEODE_REGION})
-  @MultiStepCommand
-  @CliCommand(value = {CliStrings.QUERY}, help = CliStrings.QUERY__HELP)
-  public Object query(
-      @CliOption(key = CliStrings.QUERY__QUERY, help = CliStrings.QUERY__QUERY__HELP,
-          mandatory = true) final String query,
-      @CliOption(key = CliStrings.QUERY__STEPNAME, help = "Step name",
-          unspecifiedDefaultValue = CliStrings.QUERY__STEPNAME__DEFAULTVALUE) String stepName,
-      @CliOption(key = CliStrings.QUERY__INTERACTIVE, help = CliStrings.QUERY__INTERACTIVE__HELP,
-          unspecifiedDefaultValue = "true") final boolean interactive) {
-
-    if (!CliUtil.isGfshVM() && stepName.equals(CliStrings.QUERY__STEPNAME__DEFAULTVALUE)) {
-      return ResultBuilder.createInfoResult(CliStrings.QUERY__MSG__NOT_SUPPORTED_ON_MEMBERS);
-    }
-
-    Object[] arguments = new Object[] {query, stepName, interactive};
-    CLIStep exec = new DataCommandFunction.SelectExecStep(arguments);
-    CLIStep display = new DataCommandFunction.SelectDisplayStep(arguments);
-    CLIStep move = new DataCommandFunction.SelectMoveStep(arguments);
-    CLIStep quit = new DataCommandFunction.SelectQuitStep(arguments);
-    CLIStep[] steps = {exec, display, move, quit};
-    return CLIMultiStepHelper.chooseStep(steps, stepName);
-  }
-
   @CliAvailabilityIndicator({CliStrings.REBALANCE, CliStrings.GET, CliStrings.PUT,
       CliStrings.REMOVE, CliStrings.LOCATE_ENTRY, CliStrings.QUERY, CliStrings.IMPORT_DATA,
       CliStrings.EXPORT_DATA})
