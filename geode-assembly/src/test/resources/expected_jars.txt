@@ -10,6 +10,7 @@ commons-io
 commons-lang
 commons-logging
 commons-modeler
+commons-codec
 fast-classpath-scanner
 fastutil
 findbugs-annotations
@@ -46,6 +47,7 @@ lucene-analyzers-common
 lucene-core
 lucene-queries
 lucene-queryparser
+lucene-analyzers-phonetic
 mx4j
 mx4j-remote
 mx4j-tools

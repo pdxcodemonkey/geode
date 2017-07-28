@@ -177,6 +177,7 @@ def cp = {
         it.contains('lucene-analyzers-common') ||
         it.contains('lucene-core') ||
         it.contains('lucene-queries') ||
+        it.contains('lucene-analyzers-phonetic') ||
         it.contains('lucene-queryparser')
       }
     }
