@@ -66,8 +66,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.internal.verification.Times;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.mockito.verification.Timeout;
 
 import java.io.IOException;
@@ -1221,34 +1219,23 @@ public class GMSJoinLeaveJUnitTest {
 
   @Test
   public void testCoordinatorFindRequestSuccess() throws Exception {
-    try {
-      initMocks(false);
-      HashSet<InternalDistributedMember> registrants = new HashSet<>();
-      registrants.add(mockMembers[0]);
-      FindCoordinatorResponse fcr = new FindCoordinatorResponse(mockMembers[0], mockMembers[0],
-          false, null, registrants, false, true, null);
-      NetView view = createView();
-      JoinResponseMessage jrm = new JoinResponseMessage(mockMembers[0], view, 0);
+    initMocks(false);
+    HashSet<InternalDistributedMember> registrants = new HashSet<>();
+    registrants.add(mockMembers[0]);
+    FindCoordinatorResponse fcr = new FindCoordinatorResponse(mockMembers[0], mockMembers[0],
+        false,null, registrants, false, true, null);
+    NetView view = createView();
 
-      TcpClientWrapper tcpClientWrapper = mock(TcpClientWrapper.class);
-      gmsJoinLeave.setTcpClientWrapper(tcpClientWrapper);
-      FindCoordinatorRequest fcreq =
-          new FindCoordinatorRequest(gmsJoinLeaveMemberId, new HashSet<>(), -1, null, 0, "");
-      int connectTimeout = (int) services.getConfig().getMemberTimeout() * 2;
-      when(tcpClientWrapper.sendCoordinatorFindRequest(new InetSocketAddress("localhost", 12345),
-          fcreq, connectTimeout)).thenReturn(fcr);
-      callAsnyc(() -> {
-        gmsJoinLeave.installView(view);
-      });
-      assertTrue("Should be able to join ", gmsJoinLeave.join());
-    } finally {
 
-    }
-  }
+    TcpClientWrapper tcpClientWrapper = mock(TcpClientWrapper.class);
+    gmsJoinLeave.setTcpClientWrapper(tcpClientWrapper);
 
-  private void callAsnyc(Runnable run) {
-    Thread th = new Thread(run);
-    th.start();
+    when(tcpClientWrapper.sendCoordinatorFindRequest(isA(InetSocketAddress.class),
+        isA(FindCoordinatorRequest.class), isA(Integer.class))).thenReturn(fcr);
+
+    boolean foundCoordinator = gmsJoinLeave.findCoordinator();
+    assertTrue(gmsJoinLeave.searchState.toString(), foundCoordinator);
+    assertEquals(gmsJoinLeave.searchState.possibleCoordinator, mockMembers[0]);
   }
 
   @Test
