@@ -14,6 +14,7 @@
  */
 package org.apache.geode.test.dunit.rules.gfsh;
 
+import static org.apache.commons.lang.SystemUtils.PATH_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -40,6 +42,10 @@ import org.apache.geode.test.dunit.rules.RequiresGeodeHome;
  * {@link GfshRule#after()} method will attempt to clean up all forked JVMs.
  */
 public class GfshRule extends ExternalResource {
+  public TemporaryFolder getTemporaryFolder() {
+    return temporaryFolder;
+  }
+
   private TemporaryFolder temporaryFolder = new TemporaryFolder();
   private List<GfshExecution> gfshExecutions;
   private Path gfsh;
@@ -48,7 +54,7 @@ public class GfshRule extends ExternalResource {
     return execute(GfshScript.of(commands));
   }
 
-  protected GfshExecution execute(GfshScript gfshScript) {
+  public GfshExecution execute(GfshScript gfshScript) {
     GfshExecution gfshExecution;
     try {
       File workingDir = temporaryFolder.newFolder(gfshScript.getName());
@@ -102,11 +108,25 @@ public class GfshRule extends ExternalResource {
       commandsToExecute.add("-e " + command);
     }
 
-    return new ProcessBuilder(commandsToExecute).directory(workingDir);
+    ProcessBuilder processBuilder = new ProcessBuilder(commandsToExecute);
+    processBuilder.directory(workingDir);
+
+    List<String> extendedClasspath = gfshScript.getExtendedClasspath();
+    if (!extendedClasspath.isEmpty()) {
+      Map<String, String> environmentMap = processBuilder.environment();
+      String classpathKey = "CLASSPATH";
+      String existingJavaArgs = environmentMap.get(classpathKey);
+      String specified = String.join(PATH_SEPARATOR, extendedClasspath);
+      String newValue =
+          String.format("%s%s", existingJavaArgs == null ? "" : existingJavaArgs + ":", specified);
+      environmentMap.put(classpathKey, newValue);
+    }
+
+    return processBuilder;
   }
 
   private void stopMembersQuietly(File parentDirectory) {
-    File[] potentalMemberDirectories = parentDirectory.listFiles(File::isDirectory);
+    File[] potentialMemberDirectories = parentDirectory.listFiles(File::isDirectory);
 
     Predicate<File> isServerDir = (File directory) -> Arrays.stream(directory.list())
         .anyMatch(filename -> filename.endsWith("server.pid"));
@@ -114,15 +134,16 @@ public class GfshRule extends ExternalResource {
     Predicate<File> isLocatorDir = (File directory) -> Arrays.stream(directory.list())
         .anyMatch(filename -> filename.endsWith("locator.pid"));
 
-    Arrays.stream(potentalMemberDirectories).filter(isServerDir).forEach(this::stopServerInDir);
-    Arrays.stream(potentalMemberDirectories).filter(isLocatorDir).forEach(this::stopLocatorInDir);
+    Arrays.stream(potentialMemberDirectories).filter(isServerDir).forEach(this::stopServerInDir);
+    Arrays.stream(potentialMemberDirectories).filter(isLocatorDir).forEach(this::stopLocatorInDir);
   }
 
   private void stopServerInDir(File dir) {
     String stopServerCommand =
         new CommandStringBuilder("stop server").addOption("dir", dir).toString();
 
-    GfshScript stopServerScript = new GfshScript(stopServerCommand).awaitQuietly();
+    GfshScript stopServerScript =
+        new GfshScript(stopServerCommand).withName("teardown-stop-server").awaitQuietly();
     execute(stopServerScript);
   }
 
@@ -130,7 +151,8 @@ public class GfshRule extends ExternalResource {
     String stopLocatorCommand =
         new CommandStringBuilder("stop locator").addOption("dir", dir).toString();
 
-    GfshScript stopServerScript = new GfshScript(stopLocatorCommand).awaitQuietly();
+    GfshScript stopServerScript =
+        new GfshScript(stopLocatorCommand).withName("teardown-stop-locator").awaitQuietly();
     execute(stopServerScript);
   }
 

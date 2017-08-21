@@ -23,8 +23,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.SSL_KEYSTORE_
 import static org.apache.geode.distributed.ConfigurationProperties.SSL_PROTOCOLS;
 import static org.apache.geode.distributed.ConfigurationProperties.SSL_TRUSTSTORE;
 import static org.apache.geode.distributed.ConfigurationProperties.SSL_TRUSTSTORE_PASSWORD;
-import static org.apache.geode.management.internal.cli.shell.Gfsh.SSL_ENABLED_CIPHERS;
-import static org.apache.geode.management.internal.cli.shell.Gfsh.SSL_ENABLED_PROTOCOLS;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -51,6 +49,7 @@ import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.lang.StringUtils;
@@ -312,7 +311,10 @@ public class ShellCommands implements GfshCommand {
           help = CliStrings.CONNECT__SECURITY_PROPERTIES__HELP) final String gfSecurityPropertiesPath,
       @CliOption(key = {CliStrings.CONNECT__USE_SSL}, specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false",
-          help = CliStrings.CONNECT__USE_SSL__HELP) final boolean useSsl) {
+          help = CliStrings.CONNECT__USE_SSL__HELP) final boolean useSsl,
+      @CliOption(key = {"skip-ssl-validation"}, specifiedDefaultValue = "true",
+          unspecifiedDefaultValue = "false",
+          help = "When connecting via HTTP, connects using 1-way SSL validation rather than 2-way SSL validation.") boolean skipSslValidation) {
     Result result;
     String passwordToUse = decrypt(password);
     String keystoreToUse = keystore;
@@ -348,6 +350,9 @@ public class ShellCommands implements GfshCommand {
     }
 
     if (useHttp) {
+      if (skipSslValidation) {
+        HttpsURLConnection.setDefaultHostnameVerifier((String s, SSLSession sslSession) -> true);
+      }
       result = httpConnect(sslConfigProps, useSsl, url, userName, passwordToUse);
     } else {
       result = jmxConnect(sslConfigProps, memberRmiHostPort, locatorTcpHostPort, useSsl, userName,
@@ -709,7 +714,7 @@ public class ShellCommands implements GfshCommand {
       }
       if (sslCiphersToUse != null && sslCiphersToUse.length() > 0) {
         // sslConfigProps.put(DistributionConfig.CLUSTER_SSL_CIPHERS_NAME, sslCiphersToUse);
-        sslConfigProps.put(SSL_ENABLED_CIPHERS, sslCiphersToUse);
+        sslConfigProps.put(SSL_CIPHERS, sslCiphersToUse);
       }
 
       if (numTimesPrompted > 0) {
@@ -717,7 +722,7 @@ public class ShellCommands implements GfshCommand {
       }
       if (sslProtocolsToUse != null && sslProtocolsToUse.length() > 0) {
         // sslConfigProps.put(DistributionConfig.CLUSTER_SSL_PROTOCOLS_NAME, sslProtocolsToUse);
-        sslConfigProps.put(SSL_ENABLED_PROTOCOLS, sslProtocolsToUse);
+        sslConfigProps.put(SSL_PROTOCOLS, sslProtocolsToUse);
       }
 
       // SSL is required to be used but no SSL config found

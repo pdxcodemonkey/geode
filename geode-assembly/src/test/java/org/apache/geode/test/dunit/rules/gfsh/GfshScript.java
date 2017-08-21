@@ -16,20 +16,24 @@ package org.apache.geode.test.dunit.rules.gfsh;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.management.internal.cli.util.ThreePhraseGenerator;
 
 public class GfshScript {
   private final String[] commands;
-  private String name = new ThreePhraseGenerator().generate('-');
+  private String name;
   private TimeUnit timeoutTimeUnit = TimeUnit.MINUTES;
   private int timeout = 1;
   private boolean awaitQuietly = false;
   private int expectedExitValue = 0;
+  private List<String> extendedClasspath = new ArrayList<>();
 
   public GfshScript(String... commands) {
     this.commands = commands;
+    this.name = defaultName(commands);
   }
 
   /**
@@ -41,6 +45,7 @@ public class GfshScript {
 
   public GfshScript withName(String name) {
     this.name = name;
+
     return this;
   }
 
@@ -65,6 +70,16 @@ public class GfshScript {
   public GfshScript awaitAtMost(int timeout, TimeUnit timeUnit) {
     this.timeout = timeout;
     this.timeoutTimeUnit = timeUnit;
+
+    return this;
+  }
+
+  public List<String> getExtendedClasspath() {
+    return extendedClasspath;
+  }
+
+  public GfshScript addToClasspath(String classpath) {
+    extendedClasspath.add(classpath);
 
     return this;
   }
@@ -136,5 +151,13 @@ public class GfshScript {
 
   public String getName() {
     return name;
+  }
+
+  private String defaultName(String... commands) {
+    try {
+      return commands[0].substring(0, commands[0].indexOf("-"));
+    } catch (Exception handled) {
+      return new ThreePhraseGenerator().generate('-');
+    }
   }
 }
