@@ -43,6 +43,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -91,11 +92,6 @@ public class GemfireSessionManager implements SessionManager {
    * the filter.
    */
   private boolean isolated = false;
-
-  /**
-   * Map of wrapping GemFire session id to native session id
-   */
-  private Map<String, String> nativeSessionMap = new HashMap<String, String>();
 
   /**
    * MBean for statistics
@@ -212,9 +208,9 @@ public class GemfireSessionManager implements SessionManager {
    * {@inheritDoc}
    */
   @Override
-  public HttpSession wrapSession(HttpSession nativeSession) {
+  public HttpSession wrapSession(ServletContext context, int maxInactiveInterval) {
     String id = generateId();
-    GemfireHttpSession session = new GemfireHttpSession(id, nativeSession);
+    GemfireHttpSession session = new GemfireHttpSession(id, context);
 
     /**
      * Set up the attribute container depending on how things are configured
@@ -235,6 +231,8 @@ public class GemfireSessionManager implements SessionManager {
 
     attributes.setSession(session);
     attributes.setJvmOwnerId(jvmId);
+    attributes.setMaxInactiveInterval(maxInactiveInterval);
+    attributes.setCreationTime(System.currentTimeMillis());
 
     session.setManager(this);
     session.setAttributes(attributes);
@@ -244,19 +242,6 @@ public class GemfireSessionManager implements SessionManager {
 
     mbean.incActiveSessions();
 
-    return session;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public HttpSession getWrappingSession(String nativeId) {
-    HttpSession session = null;
-    String gemfireId = getGemfireSessionIdFromNativeId(nativeId);
-
-    if (gemfireId != null) {
-      session = getSession(gemfireId);
-    }
     return session;
   }
 
@@ -285,17 +270,7 @@ public class GemfireSessionManager implements SessionManager {
         } catch (CacheClosedException ccex) {
           // Ignored
         }
-      } else {
-        GemfireHttpSession session = (GemfireHttpSession) sessionCache.getOperatingRegion().get(id);
-        if (session != null) {
-          session.setNativeSession(null);
-        }
       }
-    }
-
-    synchronized (nativeSessionMap) {
-      String nativeId = nativeSessionMap.remove(id);
-      LOG.debug("destroySession called for {} wrapping {}", id, nativeId);
     }
   }
 
@@ -306,44 +281,10 @@ public class GemfireSessionManager implements SessionManager {
   public void putSession(HttpSession session) {
     sessionCache.getOperatingRegion().put(session.getId(), session);
     mbean.incRegionUpdates();
-    nativeSessionMap.put(session.getId(),
-        ((GemfireHttpSession) session).getNativeSession().getId());
-  }
-
-  @Override
-  public String destroyNativeSession(String nativeId) {
-    String gemfireSessionId = getGemfireSessionIdFromNativeId(nativeId);
-    if (gemfireSessionId != null) {
-      destroySession(gemfireSessionId);
-    }
-    return gemfireSessionId;
   }
 
   public ClassLoader getReferenceClassLoader() {
     return referenceClassLoader;
-  }
-
-  /**
-   * This method is called when a native session gets destroyed. It will check if the GemFire
-   * session is actually still valid/not expired and will then attach a new, native session.
-   *
-   * @param nativeId the id of the native session
-   * @return the id of the newly attached native session or null if the GemFire session was already
-   *         invalid
-   */
-  public String refreshSession(String nativeId) {
-    String gemfireId = getGemfireSessionIdFromNativeId(nativeId);
-    if (gemfireId == null) {
-      return null;
-    }
-
-    GemfireHttpSession session =
-        (GemfireHttpSession) sessionCache.getOperatingRegion().get(gemfireId);
-    if (session.isValid()) {
-
-    }
-
-    return null;
   }
 
   public String getSessionCookieName() {
@@ -357,19 +298,6 @@ public class GemfireSessionManager implements SessionManager {
 
   ///////////////////////////////////////////////////////////////////////
   // Private methods
-
-  private String getGemfireSessionIdFromNativeId(String nativeId) {
-    if (nativeId == null) {
-      return null;
-    }
-
-    for (Map.Entry<String, String> e : nativeSessionMap.entrySet()) {
-      if (nativeId.equals(e.getValue())) {
-        return e.getKey();
-      }
-    }
-    return null;
-  }
 
   /**
    * Start the underlying distributed system
