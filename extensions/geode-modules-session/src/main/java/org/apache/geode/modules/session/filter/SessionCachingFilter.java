@@ -478,6 +478,7 @@ public class SessionCachingFilter implements Filter {
   @Override
   public void init(final FilterConfig config) {
     LOG.info("Starting Session Filter initialization");
+    registerInstantiators();
     this.filterConfig = config;
 
     if (started.getAndDecrement() > 0) {
@@ -510,6 +511,12 @@ public class SessionCachingFilter implements Filter {
 
     LOG.info("Session Filter initialization complete");
     LOG.debug("Filter class loader {}", this.getClass().getClassLoader());
+  }
+
+  private void registerInstantiators() {
+    GemfireHttpSession.registerInstantiator();
+    DeltaQueuedSessionAttributes.registerInstantiator();
+    DeltaSessionAttributes.registerInstantiator();
   }
 
   /**
