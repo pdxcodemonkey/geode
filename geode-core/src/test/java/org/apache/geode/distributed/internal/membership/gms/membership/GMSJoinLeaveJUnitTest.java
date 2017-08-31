@@ -1222,8 +1222,8 @@ public class GMSJoinLeaveJUnitTest {
     initMocks(false);
     HashSet<InternalDistributedMember> registrants = new HashSet<>();
     registrants.add(mockMembers[0]);
-    FindCoordinatorResponse fcr = new FindCoordinatorResponse(mockMembers[0], mockMembers[0],
-        false,null, registrants, false, true, null);
+    FindCoordinatorResponse fcr = new FindCoordinatorResponse(mockMembers[0], mockMembers[0], false,
+        null, registrants, false, true, null);
     NetView view = createView();
 
 
