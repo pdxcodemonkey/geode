@@ -34,9 +34,7 @@ extraArchive {
   tests = false
 }
 
-if(productName == "Apache Geode") {
-  disableMavenPublishing()
-}
+disableMavenPublishing()
 disableSigning()
 
 def getJarArtifact(module) {
