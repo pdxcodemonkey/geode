@@ -57,7 +57,7 @@ public class PutCommandWithJsonTest {
             "put --region=region --key=key --value=('name':'Jinmei') --value-class=Customer")
         .execute(gfsh);
 
-    assertThat(execution.getOutputText()).doesNotContain("Couldn't convert JSON to Object");
-    assertThat(execution.getOutputText()).contains("Value Class : Customer");
+    assertThat(execution.getStdOutLines()).doesNotContain("Couldn't convert JSON to Object");
+    assertThat(execution.getStdOutLines()).contains("Value Class : Customer");
   }
 }
