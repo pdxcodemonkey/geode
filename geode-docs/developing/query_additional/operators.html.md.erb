@@ -27,14 +27,23 @@ Comparison operators compare two values and return the results, either TRUE or F
 
 The following are supported comparison operators:
 
-|                       |                                |
-|-----------------------|--------------------------------|
-| = equal to            | &lt; less than                 |
-| &lt;&gt; not equal to | &lt;= less than or equal to    |
-| != not equal to       | &gt; greater than              |
-|                       | &gt;= greater than or equal to |
+| Operator | Meaning                  |
+|----------|--------------------------|
+| &lt;     | less than                |
+| &lt;=    | less than or equal to    |
+| &gt;     | greater than             |
+| &gt;=    | greater than or equal to |
+|          |                          |
+| =        | equal to                 |
+| !=       | not equal to             |
+| &lt;&gt; | not equal to             |
 
-The equal and not equal operators have lower precedence than the other comparison operators. They can be used with null. To perform equality or inequality comparisons with UNDEFINED, use the IS\_DEFINED and IS\_UNDEFINED preset query functions instead of these comparison operators.
+Regarding equality and inequality operators:
+
+- The equality and inequality operators have lower precedence than the other comparison operators.
+- The equality and inequality operators can be used with null.
+- Inequality queries return results for which the search field is UNDEFINED.
+- To perform equality or inequality comparisons with UNDEFINED, use the IS\_DEFINED and IS\_UNDEFINED preset query functions instead of these comparison operators.
 
 ## <a id="operators__section_6A85A9DDA47E47009FDE1CC38D7BA66C" class="no-quick-link"></a>Logical Operators
 
