@@ -79,6 +79,15 @@ public interface GfshCommand extends CommandMarker {
     return locator == null ? null : locator.getSharedConfiguration();
   }
 
+  default boolean isSharedConfigurationRunning() {
+    InternalLocator locator = InternalLocator.getLocator();
+    if (locator == null) {
+      return false;
+    }
+    return locator.isSharedConfigurationRunning();
+  }
+
+
   default void persistClusterConfiguration(Result result, Runnable runnable) {
     if (result == null) {
       throw new IllegalArgumentException("Result should not be null");
@@ -144,5 +153,4 @@ public interface GfshCommand extends CommandMarker {
   default Execution getMembersFunctionExecutor(final Set<DistributedMember> members) {
     return FunctionService.onMembers(members);
   }
-
 }
