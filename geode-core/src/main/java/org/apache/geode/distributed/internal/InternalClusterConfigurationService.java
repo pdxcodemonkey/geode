@@ -112,8 +112,6 @@ public class InternalClusterConfigurationService implements ClusterConfiguration
 
   public static final String CLUSTER_CONFIG_DISK_DIR_PREFIX = "ConfigDiskDir_";
 
-  public static final String CLUSTER_CONFIG = "cluster";
-
   /**
    * Name of the lock service used for shared configuration
    */
@@ -618,6 +616,20 @@ public class InternalClusterConfigurationService implements ClusterConfiguration
     return getConfigurationRegion().get(groupName);
   }
 
+  public void setConfiguration(String groupName, Configuration configuration) {
+    getConfigurationRegion().put(groupName, configuration);
+  }
+
+  public boolean hasXmlConfiguration() {
+    Region<String, Configuration> configRegion = getConfigurationRegion();
+    return configRegion.values().stream().anyMatch(c -> c.getCacheXmlContent() != null);
+  }
+
+  public Map<String, Configuration> getEntireConfiguration() {
+    Set<String> keys = getConfigurationRegion().keySet();
+    return getConfigurationRegion().getAll(keys);
+  }
+
   /**
    * Returns the path of Shared configuration directory
    *
@@ -709,6 +721,7 @@ public class InternalClusterConfigurationService implements ClusterConfiguration
     FileUtils.writeStringToFile(xmlFile, configuration.getCacheXmlContent(), "UTF-8");
   }
 
+  // TODO: return value is never used
   public boolean lockSharedConfiguration() {
     return this.sharedConfigLockingService.lock(SHARED_CONFIG_LOCK_NAME, -1, -1);
   }

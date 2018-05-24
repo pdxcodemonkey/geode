@@ -17,6 +17,8 @@ package org.apache.geode.management.internal.cli.commands;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.geode.distributed.internal.InternalClusterConfigurationService;
+import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.cli.Result;
@@ -66,5 +68,10 @@ public abstract class InternalGfshCommand extends GfshCommand {
 
   public ManagementService getManagementService() {
     return ManagementService.getExistingManagementService(getCache());
+  }
+
+  public InternalClusterConfigurationService getConfigurationService() {
+    InternalLocator locator = InternalLocator.getLocator();
+    return locator == null ? null : locator.getSharedConfiguration();
   }
 }

@@ -70,9 +70,9 @@ public class DlockAndTxlockRegressionTest extends JUnit4CacheTestCase {
   }
 
   /**
-   * Distributed locks are released quickly when a server crashes but transaction locks are
-   * released in a background "pooled waiting" thread because the release involves communicating
-   * with participants of the transaction. This makes the pattern of<br>
+   * Distributed locks are released quickly when a server crashes but transaction locks are released
+   * in a background "pooled waiting" thread because the release involves communicating with
+   * participants of the transaction. This makes the pattern of<br>
    * 1. get dlock,<br>
    * 2. perform transaction<br>
    * sometimes fail if the background cleanup takes too long. You may get the dlock but then get a
