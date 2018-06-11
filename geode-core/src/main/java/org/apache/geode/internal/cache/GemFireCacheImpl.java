@@ -79,6 +79,12 @@ import com.sun.jna.Platform;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
+import org.apache.geode.cache.query.internal.InternalQueryService;
+import org.apache.geode.cache.query.internal.MethodInvocationAuthorizer;
+import org.apache.geode.cache.query.internal.RestrictedMethodInvocationAuthorizer;
+import org.apache.geode.internal.cache.event.EventTrackerExpiryTask;
+import org.apache.geode.internal.cache.wan.GatewaySenderQueueEntrySynchronizationListener;
+import org.apache.geode.internal.security.SecurityServiceFactory;
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.CancelException;
 import org.apache.geode.ForcedDisconnectException;
@@ -133,7 +139,6 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
-import org.apache.geode.cache.query.internal.InternalQueryService;
 import org.apache.geode.cache.query.internal.QueryMonitor;
 import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache.query.internal.cq.CqServiceProvider;
@@ -175,7 +180,6 @@ import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType;
 import org.apache.geode.internal.cache.control.ResourceAdvisor;
-import org.apache.geode.internal.cache.event.EventTrackerExpiryTask;
 import org.apache.geode.internal.cache.execute.util.FindRestEnabledServersFunction;
 import org.apache.geode.internal.cache.extension.Extensible;
 import org.apache.geode.internal.cache.extension.ExtensionPoint;
@@ -196,7 +200,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderAdvisor;
-import org.apache.geode.internal.cache.wan.GatewaySenderQueueEntrySynchronizationListener;
 import org.apache.geode.internal.cache.wan.WANServiceProvider;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue;
 import org.apache.geode.internal.cache.xmlcache.CacheXmlParser;
@@ -214,7 +217,6 @@ import org.apache.geode.internal.logging.log4j.LocalizedMessage;
 import org.apache.geode.internal.net.SocketCreator;
 import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.security.SecurityService;
-import org.apache.geode.internal.security.SecurityServiceFactory;
 import org.apache.geode.internal.sequencelog.SequenceLoggerImpl;
 import org.apache.geode.internal.tcp.ConnectionTable;
 import org.apache.geode.internal.util.concurrent.FutureResult;
@@ -949,20 +951,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
 
       addRegionEntrySynchronizationListener(new GatewaySenderQueueEntrySynchronizationListener());
     } // synchronized
-  }
-
-  @Override
-  public void reLoadClusterConfiguration() throws IOException, ClassNotFoundException {
-    this.configurationResponse = requestSharedConfiguration();
-    if (this.configurationResponse != null) {
-      ClusterConfigurationLoader.deployJarsReceivedFromClusterConfiguration(this,
-          this.configurationResponse);
-      ClusterConfigurationLoader.applyClusterPropertiesConfiguration(this.configurationResponse,
-          this.system.getConfig());
-      ClusterConfigurationLoader.applyClusterXmlConfiguration(this, this.configurationResponse,
-          this.system.getConfig());
-      initializeDeclarativeCache();
-    }
   }
 
   /**

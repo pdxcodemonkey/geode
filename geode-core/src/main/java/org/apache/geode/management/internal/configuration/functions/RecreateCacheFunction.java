@@ -14,30 +14,27 @@
  */
 package org.apache.geode.management.internal.configuration.functions;
 
-import org.apache.logging.log4j.Logger;
-
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.InternalEntity;
+import org.apache.geode.internal.cache.CacheConfig;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.management.internal.cli.functions.CliFunctionResult;
 
 public class RecreateCacheFunction implements Function, InternalEntity {
-  private static Logger logger = LogService.getLogger();
-
   @Override
   public void execute(FunctionContext context) {
     CliFunctionResult result = null;
     InternalCache cache = GemFireCacheImpl.getInstance();
     InternalDistributedSystem ds = cache.getInternalDistributedSystem();
+    CacheConfig cacheConfig = cache.getCacheConfig();
     try {
-      cache.reLoadClusterConfiguration();
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      result = new CliFunctionResult(ds.getName(), false, e.getMessage());
+      cache.close("Re-create Cache", true, true);
+      GemFireCacheImpl.create(ds, cacheConfig);
+    } catch (RuntimeException e) {
+      result = new CliFunctionResult(ds.getName(), e, e.getMessage());
       context.getResultSender().lastResult(result);
       return;
     }

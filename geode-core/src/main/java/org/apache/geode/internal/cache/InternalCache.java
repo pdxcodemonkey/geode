@@ -312,8 +312,6 @@ public interface InternalCache extends Cache, Extensible<Cache>, CacheTime {
 
   void waitForRegisterInterestsInProgress();
 
-  void reLoadClusterConfiguration() throws IOException, ClassNotFoundException;
-
   SecurityService getSecurityService();
 
   boolean hasPersistentRegion();
