@@ -30,8 +30,6 @@ import org.apache.geode.management.internal.cli.exceptions.EntityNotFoundExcepti
 
 @Experimental
 public interface ClusterConfigurationService {
-  String CLUSTER_CONFIG = "cluster";
-
   /**
    * if you want the output xml have schemaLocation correctly set for your namespace, use this
    * instead of registerBindClass(Class)./

@@ -51,8 +51,7 @@ public class CommandAvailabilityIndicator implements CommandMarker {
       CliStrings.STATUS_GATEWAYRECEIVER, CliStrings.LOAD_BALANCE_GATEWAYSENDER,
       CliStrings.DESTROY_GATEWAYSENDER, AlterAsyncEventQueueCommand.COMMAND_NAME,
       CreateJndiBindingCommand.CREATE_JNDIBINDING, DestroyJndiBindingCommand.DESTROY_JNDIBINDING,
-      DescribeJndiBindingCommand.DESCRIBE_JNDI_BINDING, GetClusterConfigurationCommand.COMMAND,
-      SetClusterConfigurationCommand.COMMAND})
+      DescribeJndiBindingCommand.DESCRIBE_JNDI_BINDING})
   public boolean clientCommandsAvailable() {
     Gfsh gfsh = Gfsh.getCurrentInstance();
 
