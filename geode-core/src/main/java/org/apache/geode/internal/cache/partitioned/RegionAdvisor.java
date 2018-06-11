@@ -1812,6 +1812,16 @@ public class RegionAdvisor extends CacheDistributionAdvisor {
     }
   }
 
+  /**
+   * return true if the given member has this advisor's partitioned region
+   */
+  public boolean hasPartitionedRegion(InternalDistributedMember profileId) {
+    if (getDistributionManager().getId().equals(profileId)) {
+      return true;
+    }
+    return (getProfile(profileId) != null);
+  }
+
   @Override
   protected void profileRemoved(Profile profile) {
     if (logger.isDebugEnabled()) {
