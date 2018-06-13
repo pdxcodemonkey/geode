@@ -1783,8 +1783,7 @@ public class InitialImageOperation {
                         gcVersions = rgn.getVersionVector().getMemberToGCVersion();
                       }
                       replyWithData(dm, entries, seriesNum, msgNum++, numSeries, this.last,
-                          flowControlId,
-                          versionVector != null, holderToSend, gcVersions);
+                          flowControlId, versionVector != null, holderToSend, gcVersions);
                     }
                     return !abort;
                   } catch (CancelException e) {

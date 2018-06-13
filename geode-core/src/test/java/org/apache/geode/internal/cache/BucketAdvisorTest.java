@@ -74,8 +74,7 @@ public class BucketAdvisorTest {
     // false the second time simulates the elector closing its region/cache before
     // we get to the point of volunteering for primary
     when(regionAdvisor.hasPartitionedRegion(Mockito.any(InternalDistributedMember.class)))
-        .thenReturn(true,
-            false);
+        .thenReturn(true, false);
 
     BucketAdvisor advisor = BucketAdvisor.createBucketAdvisor(bucket, regionAdvisor);
     BucketAdvisor advisorSpy = spy(advisor);
