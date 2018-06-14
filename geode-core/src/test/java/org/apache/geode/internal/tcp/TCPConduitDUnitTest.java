@@ -40,6 +40,7 @@ import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
 import org.apache.geode.test.junit.categories.DistributedTest;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
+import org.apache.geode.util.test.TestUtil;
 
 
 @Category(DistributedTest.class)
@@ -62,12 +63,13 @@ public class TCPConduitDUnitTest extends DistributedTestCase {
     Properties SSL = new Properties();
     SSL.putAll(nonSSL);
 
+    final String keystorePath = TestUtil.getResourcePath(TCPConduitDUnitTest.class,
+        "/org/apache/geode/cache/client/internal/default.keystore");
+
     SSL.setProperty(ConfigurationProperties.SSL_ENABLED_COMPONENTS, "cluster");
-    SSL.setProperty(ConfigurationProperties.SSL_KEYSTORE,
-        "/Users/gosullivan/src/geode/geode-core/src/test/resources/org/apache/geode/cache/client/internal/default.keystore");
+    SSL.setProperty(ConfigurationProperties.SSL_KEYSTORE, keystorePath);
     SSL.setProperty(ConfigurationProperties.SSL_KEYSTORE_PASSWORD, "password");
-    SSL.setProperty(ConfigurationProperties.SSL_TRUSTSTORE,
-        "/Users/gosullivan/src/geode/geode-core/src/test/resources/org/apache/geode/cache/client/internal/default.keystore");
+    SSL.setProperty(ConfigurationProperties.SSL_TRUSTSTORE, keystorePath);
     SSL.setProperty(ConfigurationProperties.SSL_TRUSTSTORE_PASSWORD, "password");
 
     return Arrays.asList(nonSSL, SSL);
