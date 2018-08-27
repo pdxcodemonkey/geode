@@ -14,8 +14,18 @@
  */
 package org.apache.geode.internal.cache.wan.parallel;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +46,7 @@ import org.mockito.stubbing.Answer;
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Operation;
@@ -44,12 +55,14 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.distributed.DistributedMember;
+import org.apache.geode.internal.cache.AbstractBucketRegionQueue;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.BucketAdvisor;
 import org.apache.geode.internal.cache.BucketRegionQueue;
 import org.apache.geode.internal.cache.BucketRegionQueueHelper;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EvictionAttributesImpl;
+import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalRegionArguments;
 import org.apache.geode.internal.cache.KeyInfo;
@@ -182,6 +195,23 @@ public class ParallelQueueRemovalMessageJUnitTest {
   @After
   public void tearDownGemFire() {
     GemFireCacheImpl.setInstanceForTests(null);
+  }
+
+  @Test
+  public void ifIsFailedBatchRemovalMessageKeysClearedFlagSetThenAddToFailedBatchRemovalMessageKeysNotCalled()
+      throws ForceReattemptException {
+    ParallelQueueRemovalMessage pqrm = new ParallelQueueRemovalMessage();
+    Object object = new Object();
+    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    AbstractBucketRegionQueue brq = mock(AbstractBucketRegionQueue.class);
+    doThrow(new EntryNotFoundException("ENTRY NOT FOUND")).when(brq).destroyKey(object);
+    when(brq.isFailedBatchRemovalMessageKeysClearedFlag()).thenReturn(true);
+    doNothing().when(brq).addToFailedBatchRemovalMessageKeys(object);
+    pqrm.destroyKeyFromBucketQueue(brq, object, partitionedRegion);
+    verify(brq, times(1)).destroyKey(object);
+    verify(brq, times(1)).isFailedBatchRemovalMessageKeysClearedFlag();
+    verify(brq, times(0)).addToFailedBatchRemovalMessageKeys(object);
+
   }
 
   @Test
