@@ -28,6 +28,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -50,6 +51,7 @@ public class GeodeDependencyJarIntegrationTest {
         Files.lines(Paths.get(dependencyClasspath)).collect(Collectors.toSet());
   }
 
+  @Ignore("GEM-2226: GemFire support/9.6 CI inadvertently builds Geode jars with GemFire version numbers")
   @Test
   public void verifyManifestClassPath() throws IOException {
     Set<String> currentClasspathElements = getManifestClassPath();
