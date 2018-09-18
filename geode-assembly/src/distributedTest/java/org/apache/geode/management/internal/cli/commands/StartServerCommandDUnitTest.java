@@ -45,6 +45,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -233,6 +234,7 @@ public class StartServerCommandDUnitTest {
     assertThat(result.getMessageFromContent()).contains(expectedMessage).contains(expectedMessage2);
   }
 
+  @Ignore("Ignoring for 9.6 because the 9.6 pipeline runs tests as root.")
   @Test
   public void testWithMissingStartDirectoryThatCannotBeCreated() {
     final Integer serverPort = AvailablePortHelper.getRandomAvailableTCPPort();

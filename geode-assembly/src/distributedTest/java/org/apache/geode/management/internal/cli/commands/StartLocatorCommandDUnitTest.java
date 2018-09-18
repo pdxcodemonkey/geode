@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -229,6 +230,7 @@ public class StartLocatorCommandDUnitTest {
     assertThat(result.getMessageFromContent()).containsPattern(expectedMessage);
   }
 
+  @Ignore("Ignoring for 9.6 because the 9.6 pipeline runs tests as root.")
   @Test
   public void testInMissingRelativeDirectoryWithoutCreatePermissions() {
     // path to a missing dir that cannot be created due to insufficient permissions
@@ -261,6 +263,8 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testInMissingRelativeDirectoryThatCanBeCreated() {
+    final Integer locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+
     // path to a missing dir that can be created
     String readWritePathname = "readWriteDir";
     File readWriteDir = new File(readWritePathname);
@@ -273,7 +277,8 @@ public class StartLocatorCommandDUnitTest {
     CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
-        .addOption(START_LOCATOR__DIR, missingDirPath);
+        .addOption(START_LOCATOR__DIR, missingDirPath)
+        .addOption(START_LOCATOR__PORT, locatorPort.toString());
 
     try {
       CommandResult result = gfsh.executeCommand(command.getCommandString());
