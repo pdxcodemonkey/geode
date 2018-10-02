@@ -2559,7 +2559,7 @@ public abstract class InternalDataSerializer extends DataSerializer {
 
       return o;
 
-    } catch (EOFException ex) {
+    } catch (EOFException | SocketException ex) {
       // client went away - ignore
       throw ex;
     } catch (Exception ex) {
@@ -2586,6 +2586,9 @@ public abstract class InternalDataSerializer extends DataSerializer {
 
       return o;
 
+    } catch (EOFException | SocketException ex) {
+      // client went away - ignore
+      throw ex;
     } catch (Exception ex) {
       throw new SerializationException(
           LocalizedStrings.DataSerializer_COULD_NOT_CREATE_AN_INSTANCE_OF_0
