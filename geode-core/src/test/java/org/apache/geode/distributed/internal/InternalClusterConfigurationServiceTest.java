@@ -17,6 +17,7 @@
 
 package org.apache.geode.distributed.internal;
 
+import static junitparams.JUnitParamsRunner.$;
 import static org.apache.geode.internal.config.JAXBServiceTest.setBasicValues;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,11 +27,21 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
+import java.util.AbstractMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.w3c.dom.Document;
 
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.JndiBindingsType;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.internal.config.JAXBServiceTest;
@@ -38,10 +49,11 @@ import org.apache.geode.internal.config.JAXBServiceTest.ElementOne;
 import org.apache.geode.internal.config.JAXBServiceTest.ElementTwo;
 import org.apache.geode.management.internal.cli.exceptions.EntityNotFoundException;
 import org.apache.geode.management.internal.configuration.domain.Configuration;
+import org.apache.geode.management.internal.configuration.utils.XmlUtils;
 import org.apache.geode.test.junit.categories.UnitTest;
 
-
 @Category(UnitTest.class)
+@RunWith(JUnitParamsRunner.class)
 public class InternalClusterConfigurationServiceTest {
   private InternalClusterConfigurationService service;
   private Configuration configuration;
@@ -165,5 +177,118 @@ public class InternalClusterConfigurationServiceTest {
     service.deleteCustomRegionElement("cluster", "testRegion", "elementOne", ElementOne.class);
     System.out.println(configuration.getCacheXmlContent());
     assertThat(configuration.getCacheXmlContent()).doesNotContain("custom-one>");
+  }
+
+  @Test
+  public void updateGatewayReceiverConfig() {
+    service.updateCacheConfig("cluster", cacheConfig -> {
+      CacheConfig.GatewayReceiver receiver = new CacheConfig.GatewayReceiver();
+      cacheConfig.setGatewayReceiver(receiver);
+      return cacheConfig;
+    });
+
+    System.out.println(configuration.getCacheXmlContent());
+    assertThat(configuration.getCacheXmlContent()).contains("<gateway-receiver/>");
+  }
+
+  @Test
+  public void removeDuplicateGatewayReceiversWithDefaultProperties() throws Exception {
+    Document document =
+        XmlUtils.createDocumentFromXml(getDuplicateReceiversWithDefaultPropertiesXml());
+    System.out.println("Initial document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(2);
+    service.removeDuplicateGatewayReceivers(document);
+    System.out.println("Processed document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(1);
+  }
+
+  @Test
+  public void removeInvalidGatewayReceiversWithDifferentHostNameForSenders() throws Exception {
+    Document document =
+        XmlUtils.createDocumentFromXml(getDuplicateReceiversWithDifferentHostNameForSendersXml());
+    System.out.println("Initial document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(2);
+    service.removeInvalidGatewayReceivers(document);
+    System.out.println("Processed document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(0);
+  }
+
+  @Test
+  public void removeInvalidGatewayReceiversWithDifferentBindAddresses() throws Exception {
+    Document document =
+        XmlUtils.createDocumentFromXml(getDuplicateReceiversWithDifferentBindAddressesXml());
+    System.out.println("Initial document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(2);
+    service.removeInvalidGatewayReceivers(document);
+    System.out.println("Processed document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(0);
+  }
+
+  @Test
+  public void keepValidGatewayReceiversWithDefaultBindAddress() throws Exception {
+    Document document =
+        XmlUtils.createDocumentFromXml(getSingleReceiverWithDefaultBindAddressXml());
+    System.out.println("Initial document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(1);
+    service.removeInvalidGatewayReceivers(document);
+    System.out.println("Processed document:\n" + XmlUtils.prettyXml(document));
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength()).isEqualTo(1);
+  }
+
+  @Test
+  @Parameters(method = "getXmlAndExpectedElements")
+  public void removeInvalidXmlConfiguration(String xml, int expectedInitialElements,
+      int expectFinalElements) throws Exception {
+    Region<String, Configuration> configurationRegion = mock(Region.class);
+    configuration.setCacheXmlContent(xml);
+    System.out.println("Initial xml content:\n" + configuration.getCacheXmlContent());
+    Document document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength())
+        .isEqualTo(expectedInitialElements);
+    Set<Map.Entry<String, Configuration>> configurationEntries = new HashSet<>();
+    configurationEntries.add(new AbstractMap.SimpleEntry<>("cluster", configuration));
+    doReturn(configurationEntries).when(configurationRegion).entrySet();
+    service.removeInvalidXmlConfigurations(configurationRegion);
+    System.out.println("Processed xml content:\n" + configuration.getCacheXmlContent());
+    document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
+    assertThat(document.getElementsByTagName("gateway-receiver").getLength())
+        .isEqualTo(expectFinalElements);
+  }
+
+  private String getDuplicateReceiversWithDefaultPropertiesXml() {
+    return "<cache>\n<gateway-receiver/>\n<gateway-receiver/>\n</cache>";
+  }
+
+  private String getDuplicateReceiversWithDifferentHostNameForSendersXml() {
+    return "<cache>\n<gateway-receiver hostname-for-senders=\"123.12.12.12\"/>\n<gateway-receiver hostname-for-senders=\"123.12.12.11\"/>\n</cache>";
+  }
+
+  private String getDuplicateReceiversWithDifferentBindAddressesXml() {
+    return "<cache>\n<gateway-receiver bind-address=\"123.12.12.12\"/>\n<gateway-receiver bind-address=\"123.12.12.11\"/>\n</cache>";
+  }
+
+  private String getSingleReceiverWithDefaultBindAddressXml() {
+    return "<cache>\n<gateway-receiver bind-address=\"0.0.0.0\"/>\n</cache>";
+  }
+
+  private String getDuplicateReceiversWithDefaultBindAddressesXml() {
+    return "<cache>\n<gateway-receiver bind-address=\"0.0.0.0\"/>\n<gateway-receiver bind-address=\"0.0.0.0\"/>\n</cache>";
+  }
+
+  private String getValidReceiversXml() {
+    return "<cache>\n<gateway-receiver/>\n</cache>";
+  }
+
+  private String getNoReceiversXml() {
+    return "<cache>\n</cache>";
+  }
+
+  protected Object[] getXmlAndExpectedElements() {
+    return $(new Object[] {getDuplicateReceiversWithDefaultPropertiesXml(), 2, 1},
+        new Object[] {getDuplicateReceiversWithDifferentHostNameForSendersXml(), 2, 0},
+        new Object[] {getDuplicateReceiversWithDifferentBindAddressesXml(), 2, 0},
+        new Object[] {getSingleReceiverWithDefaultBindAddressXml(), 1, 1},
+        new Object[] {getDuplicateReceiversWithDefaultBindAddressesXml(), 2, 1},
+        new Object[] {getValidReceiversXml(), 1, 1}, new Object[] {getNoReceiversXml(), 0, 0});
   }
 }
