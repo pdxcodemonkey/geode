@@ -78,12 +78,14 @@ public class NetstatDUnitTest {
     CommandResult result = gfsh.executeCommand("netstat");
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
 
-    String rawOutput = result.getMessageFromContent();
-    String[] lines = rawOutput.split("\n");
+    List<String> lines = new ArrayList<>();
+    while (result.hasNextLine()) {
+      lines.add(result.nextLine());
+    }
 
-    assertThat(lines.length).isGreaterThan(5);
-    assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("locator-0", "server-1",
-        "server-2");
+    assertThat(lines.size()).isGreaterThan(5);
+    assertThat(lines.get(4).trim().split("[,\\s]+")).containsExactlyInAnyOrder("locator-0",
+        "server-1", "server-2");
   }
 
   @Test
@@ -91,11 +93,13 @@ public class NetstatDUnitTest {
     CommandResult result = gfsh.executeCommand("netstat --member=server-1");
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
 
-    String rawOutput = result.getMessageFromContent();
-    String[] lines = rawOutput.split("\n");
+    List<String> lines = new ArrayList<>();
+    while (result.hasNextLine()) {
+      lines.add(result.nextLine());
+    }
 
-    assertThat(lines.length).isGreaterThan(5);
-    assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("server-1");
+    assertThat(lines.size()).isGreaterThan(5);
+    assertThat(lines.get(4).trim().split("[,\\s]+")).containsExactlyInAnyOrder("server-1");
   }
 
   @Test
@@ -103,11 +107,13 @@ public class NetstatDUnitTest {
     CommandResult result = gfsh.executeCommand("netstat --member=server-1 --with-lsof");
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
 
-    String rawOutput = result.getMessageFromContent();
-    String[] lines = rawOutput.split("\n");
+    List<String> lines = new ArrayList<>();
+    while (result.hasNextLine()) {
+      lines.add(result.nextLine());
+    }
 
-    assertThat(lines.length).isGreaterThan(5);
-    assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("server-1");
+    assertThat(lines.size()).isGreaterThan(5);
+    assertThat(lines.get(4).trim().split("[,\\s]+")).containsExactlyInAnyOrder("server-1");
     assertThat(lines).filteredOn(e -> e.contains("## lsof output ##")).hasSize(1);
   }
 
