@@ -81,8 +81,8 @@ public class NetstatDUnitTest {
     String[] lines = result.toString().split("\n");
 
     assertThat(lines.length).isGreaterThan(5);
-    assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("locator-0",
-        "server-1", "server-2");
+    assertThat(lines[4].trim().split("[,\\s]+")).containsExactlyInAnyOrder("locator-0", "server-1",
+        "server-2");
   }
 
   @Test
