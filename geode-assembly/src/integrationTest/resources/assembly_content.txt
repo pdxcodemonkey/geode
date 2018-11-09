@@ -1271,8 +1271,8 @@ lib/spring-web-4.3.18.RELEASE.jar
 tools/ClientProtocol/geode-protobuf-messages-definitions-9.7.0.zip
 tools/Extensions/geode-web-9.7.0.war
 tools/Extensions/geode-web-api-9.7.0.war
-tools/Modules/Apache_Geode_Modules-9.7.0.zip
-tools/Modules/Apache_Geode_Modules-9.7.0.zip
-tools/Modules/Apache_Geode_Modules-9.7.0.zip
-tools/Modules/Apache_Geode_Modules-9.7.0.zip
+tools/Modules/Apache_Geode_Modules-9.7.0-AppServer.zip
+tools/Modules/Apache_Geode_Modules-9.7.0-Tomcat.zip
+tools/Modules/Apache_Geode_Modules-9.7.0-tcServer.zip
+tools/Modules/Apache_Geode_Modules-9.7.0-tcServer30.zip
 tools/Pulse/geode-pulse-9.7.0.war
