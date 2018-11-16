@@ -56,7 +56,6 @@ paranamer
 protobuf-java
 ra.jar
 scala-library
-scala-reflect
 shiro-core
 slf4j-api
 snappy
